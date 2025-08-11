@@ -90,6 +90,8 @@
         transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         transform: translateX(100%);
         z-index: 1000;
+        display: flex;
+        flex-direction: column;
       }
 
       .book-reader.visible {
@@ -105,11 +107,8 @@
         justify-content: space-between;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 10;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 65px; /* Reduced height for tighter spacing */
+        position: relative;
+        flex-shrink: 0; /* Don't let header shrink */
       }
 
       .home-btn {
@@ -144,15 +143,12 @@
       }
 
       .book-iframe {
-        position: absolute;
-        top: 65px; /* Start below the reduced header */
-        left: 0;
-        right: 0;
-        bottom: 5px; /* 5px padding from bottom */
+        flex: 1;
         width: 100%;
         border: none;
         background: white;
-        overflow: auto; /* Allow scrolling */
+        overflow: hidden; /* Let the content inside handle scrolling */
+        margin-bottom: 5px; /* Small bottom spacing */
       }
 
       .container {
@@ -932,9 +928,7 @@ book2/
                             onload="resetIframeScroll()"
                             frameborder="0"
                             scrolling="yes"
-                            allowfullscreen
-                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                            style="overflow: auto !important;">
+                            allowfullscreen>
                     </iframe>
                 `;
         }, 300);
@@ -967,36 +961,13 @@ book2/
             try {
               // Reset iframe scroll to top
               iframe.contentWindow.scrollTo(0, 0);
-
-              // Try to enable scrolling within the iframe content
-              if (iframe.contentDocument) {
-                const iframeBody = iframe.contentDocument.body;
-                const iframeHtml = iframe.contentDocument.documentElement;
-
-                if (iframeBody) {
-                  // Override the book's overflow:hidden
-                  iframeBody.style.overflow = "auto";
-                  iframeBody.style.overflowY = "auto";
-                  iframeBody.style.webkitOverflowScrolling = "touch";
-                  iframeBody.style.height = "auto";
-                  iframeBody.style.minHeight = "100%";
-                }
-
-                if (iframeHtml) {
-                  iframeHtml.style.overflow = "auto";
-                  iframeHtml.style.overflowY = "auto";
-                  iframeHtml.style.height = "auto";
-                  iframeHtml.style.minHeight = "100%";
-                }
-              }
-
-              console.log("📖 ספר נטען - ניסיון לתיקון גלילה");
+              console.log("📖 ספר נטען והוגדר למעלה");
             } catch (e) {
-              // Cross-origin or other issues
-              console.log("📖 ספר נטען - לא ניתן לשלוט בגלילה מסיבות אבטחה");
+              // Cross-origin or security restrictions
+              console.log("📖 ספר נטען בהצלחה");
             }
           }
-        }, 500); // Longer delay to ensure full load
+        }, 200);
       }
 
       // Initialize the magical library

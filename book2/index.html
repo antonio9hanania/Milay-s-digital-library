@@ -13,6 +13,12 @@
         overflow: auto; /* Prevent body scroll */
         min-height: 100vh;
       }
+      html,
+      body {
+        overflow: auto !important; /* Override the overflow:hidden */
+        height: auto !important;
+        min-height: 100% !important;
+      }
       .storybook-container {
         max-width: 1100px;
         width: 100%;
@@ -22,6 +28,7 @@
         flex-direction: column;
         min-height: 90vh; /* ✅ Minimum height, can grow */
         background-color: #fff;
+        height: auto !important; /* Let it grow naturally */
       }
       .storybook-body {
         flex-grow: 1;
@@ -38,7 +45,7 @@
         height: 100%;
         background-size: cover;
         background-position: center;
-        position: relative;
+        position: absolute;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -136,6 +143,12 @@
         body {
           overflow-y: auto; /* Ensure vertical scrolling on mobile */
           -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+        }
+
+        html,
+        body {
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch !important;
         }
 
         .storybook-container {
