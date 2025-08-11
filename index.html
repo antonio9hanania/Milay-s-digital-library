@@ -86,6 +86,7 @@
         left: 0; /* Changed from right to left */
         width: 100vw; /* Use viewport width */
         height: 100vh; /* Use viewport height */
+        height: 100dvh; /* Dynamic viewport height for mobile */
         background: white;
         transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         transform: translateX(100%);
@@ -147,11 +148,9 @@
         flex: 1;
         border: none;
         width: 100%;
-        height: 100%; /* Let flexbox handle the height */
+        height: 100%;
         background: white;
         display: block;
-        -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
-        overflow-y: auto; /* Ensure vertical scrolling is enabled */
       }
 
       .container {
@@ -268,7 +267,7 @@
       .book-cover img {
         width: 100%;
         height: 100%;
-        object-fit: scale-down;
+        object-fit: cover;
         transition: transform 0.4s ease;
       }
 
@@ -928,11 +927,10 @@ book2/
                     <iframe id="bookIframe" 
                             class="book-iframe" 
                             src="${book.path}" 
-                            onload="resetIframeScroll()" 
-                            scrolling="yes"
-                            allow="autoplay; fullscreen"
-                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                            style="overflow-y: auto; -webkit-overflow-scrolling: touch;">
+                            onload="resetIframeScroll()"
+                            frameborder="0"
+                            scrolling="auto"
+                            style="width: 100%; height: 100%; flex: 1; border: none;">
                     </iframe>
                 `;
         }, 300);
@@ -965,30 +963,9 @@ book2/
             try {
               // Reset iframe scroll to top
               iframe.contentWindow.scrollTo(0, 0);
-
-              // Enable smooth scrolling within the iframe if supported
-              if (
-                iframe.contentDocument &&
-                iframe.contentDocument.documentElement
-              ) {
-                iframe.contentDocument.documentElement.style.scrollBehavior =
-                  "smooth";
-
-                // Add mobile-specific styles to the iframe content
-                if (window.innerWidth <= 768) {
-                  const iframeBody = iframe.contentDocument.body;
-                  if (iframeBody) {
-                    iframeBody.style.overflowY = "auto";
-                    iframeBody.style.webkitOverflowScrolling = "touch";
-                    iframeBody.style.height = "auto";
-                    iframeBody.style.minHeight = "100%";
-                  }
-                }
-              }
-
               console.log("📖 ספר נטען והוגדר למעלה - גלילה זמינה");
             } catch (e) {
-              // Cross-origin iframe, can't control scroll
+              // Cross-origin iframe, can't control scroll but that's OK
               console.log("📖 ספר נטען בהצלחה - גלילה זמינה");
             }
           }
