@@ -7,7 +7,6 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <title>חיוך העל של מילאי</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap");
 
@@ -17,8 +16,7 @@
         font-family: "Assistant", sans-serif;
         margin: 0;
         padding: 0;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow: hidden; /* Prevent body scroll */
         height: 100%;
         background-color: #f0f2f5;
       }
@@ -43,25 +41,21 @@
         grid-template-areas:
           "content"
           "navigation";
-        /* CRITICAL: Consistent height across all pages */
         height: 80vh;
         min-height: 600px;
         max-height: 900px;
-        
       }
 
       /* === CONTENT AREA === */
       .storybook-content {
         grid-area: content;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
         overflow: hidden;
         position: relative;
+        border-radius: 0.75rem 0.75rem 0 0;
+        padding: 2rem; /* Padding for desktop view */
       }
 
-      /* === COVER PAGE === */
+      /* === COVER PAGE (SHARED) === */
       .cover-page {
         width: 100%;
         height: 100%;
@@ -71,8 +65,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0.5rem;
         position: relative;
+        border-radius: 0.5rem;
       }
 
       .cover-title {
@@ -88,8 +82,8 @@
         border: 2px solid rgba(255, 255, 255, 0.2);
       }
 
-      /* === SPREAD LAYOUT === */
-      .spread-container {
+      /* === DESKTOP: SPREADSHEET LAYOUT === */
+      .desktop-spread-container {
         display: flex;
         width: 100%;
         height: 100%;
@@ -104,29 +98,21 @@
         justify-content: center;
         background-color: #fff;
         border-radius: 0.5rem;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
         overflow: hidden;
         position: relative;
-      }
-
-      .page.text-page {
-        padding: 2.5rem;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 1.5rem;
       }
 
       .page.image-page {
-        padding: 1.5rem;
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       }
 
       .page-image {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: contain; /* Perfect for 9:16 images */
         border-radius: 0.25rem;
       }
 
@@ -135,11 +121,9 @@
         line-height: 1.7;
         color: #374151;
         max-width: 100%;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
       }
 
-      /* === NAVIGATION BAR === */
+      /* === NAVIGATION BAR (SHARED) === */
       .navigation-bar {
         grid-area: navigation;
         background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
@@ -162,7 +146,6 @@
         cursor: pointer;
         transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        min-width: 100px;
       }
 
       .nav-button:hover:not(:disabled) {
@@ -173,8 +156,6 @@
       .nav-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        transform: none;
-        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
       }
 
       .page-indicator {
@@ -187,85 +168,120 @@
         border: 2px solid #e5e7eb;
       }
 
-      /* === IFRAME COMPATIBILITY FOOTER === */
-      .iframe-footer {
-        height: 0; /* No footer needed on desktop */
-        background: transparent;
-        width: 100%;
-        /* Invisible spacer for iframe scrolling - mobile only */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 1.2rem;
+        color: #667eea;
       }
 
-      /* === MOBILE RESPONSIVE === */
+      /* === NEW: SWIPE INDICATOR FOR MOBILE === */
+      #swipe-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+        opacity: 0;
+        pointer-events: none; /* So it doesn't block touches */
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+        transition: opacity 0.5s ease;
+      }
+
+      #swipe-indicator.visible {
+        /* Animation to pulse and then fade out */
+        animation: pulse-and-fade 3s ease-out forwards;
+      }
+
+      @keyframes pulse-and-fade {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+        20% {
+          opacity: 0.8;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        80% {
+          opacity: 0.8;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+      }
+
+      /* === MOBILE RESPONSIVE (< 768px) === */
       @media (max-width: 768px) {
         .storybook-app {
-          padding: 0.5rem;
+          padding: 0;
         }
 
         .storybook-container {
-          /* Mobile: Consistent height that fits in iframe */
           height: 85vh;
-          min-height: 500px;
-          max-height: 850px;
-          border-radius: 0.5rem;
+          max-height: 85vh;
+          width: 100vw;
+          border-radius: 0;
+          box-shadow: none;
+          align-self: start;
         }
 
         .storybook-content {
-          padding: 1rem;
+          padding: 0;
+          border-radius: 0;
         }
 
-        /* Mobile: Vertical layout for spreads */
-        .spread-container {
-          flex-direction: column;
-          gap: 1rem;
-          height: 100%;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-
-        .page {
-          flex: none;
-          min-height: 45%;
-          max-height: 45%;
-          width: 100%;
-        }
-
-        .cover-page {
+        /* MOBILE: TEXT OVERLAY MODEL */
+        .mobile-spread-container {
           width: 100%;
           height: 100%;
+          background-size: cover;
+          background-position: center;
+          position: relative;
+          display: flex;
+          align-items: flex-end;
         }
 
-        .cover-title {
-          font-size: 2rem;
-          padding: 1rem 1.5rem;
+        .text-overlay {
+          /* NEW: Gradient background to soften the edge */
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.8) 20%,
+            rgba(0, 0, 0, 0.6) 60%,
+            transparent 100%
+          );
+          color: white;
+          width: 100%;
+          padding: 1.2rem;
+          padding-top: 3rem; /* Add padding to top to avoid text hitting the fade */
+          box-sizing: border-box;
         }
 
-        .page.text-page {
-          padding: 1.5rem;
-          min-height: 45%;
-          max-height: 45%;
-        }
-
-        .page.image-page {
-          padding: 1rem;
-          min-height: 45%;
-          max-height: 45%;
-        }
-
-        .page-text {
+        .text-overlay .page-text {
           font-size: 1.2rem;
           line-height: 1.6;
+          color: #ffffff;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+          max-height: 30vh; /* Adjusted max height */
+          overflow-y: auto;
         }
 
         .navigation-bar {
           padding: 1rem;
           flex-wrap: wrap;
           gap: 1rem;
+          border-radius: 0;
         }
 
         .nav-button {
           padding: 0.6rem 1.2rem;
           font-size: 0.9rem;
-          min-width: 80px;
         }
 
         .page-indicator {
@@ -275,44 +291,6 @@
           width: 100%;
           text-align: center;
         }
-        .storybook-container{
-          align-self: start;
-        }
-      }
-
-      /* === iOS SAFARI SPECIFIC === */
-      @supports (-webkit-touch-callout: none) {
-        html,
-        body {
-          -webkit-overflow-scrolling: touch;
-          overflow-y: auto;
-        }
-
-        .storybook-container {
-          -webkit-overflow-scrolling: touch;
-          transform: translateZ(0);
-        }
-
-        @media (max-width: 768px) {
-          .spread-container {
-            -webkit-overflow-scrolling: touch;
-          }
-
-          .storybook-container {
-            height: 85vh;
-            max-height: 85vh;
-          }
-        }
-      }
-
-      /* === LOADING ANIMATION === */
-      .loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        font-size: 1.2rem;
-        color: #667eea;
       }
     </style>
   </head>
@@ -321,6 +299,7 @@
     <div class="storybook-app">
       <div class="storybook-container">
         <div id="storybook-content" class="storybook-content">
+          <div id="swipe-indicator"></div>
           <div class="loading">📚 טוען ספר...</div>
         </div>
 
@@ -331,9 +310,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Invisible footer for iframe scrolling -->
-    <div class="iframe-footer"></div>
 
     <script>
       const storyData = [
@@ -410,52 +386,55 @@
         { type: "image", src: "images/11.jpg" },
       ];
 
-      // DOM Elements
       const contentContainer = document.getElementById("storybook-content");
       const prevButton = document.getElementById("prev-button");
       const nextButton = document.getElementById("next-button");
       const pageIndicator = document.getElementById("page-indicator");
+      const swipeIndicator = document.getElementById("swipe-indicator");
 
       let currentPageIndex = 0;
 
-      // Navigation Functions
       function updateNavigation() {
         prevButton.disabled = currentPageIndex === 0;
-        nextButton.disabled = currentPageIndex + 2 >= storyData.length;
-
+        nextButton.disabled = currentPageIndex + 2 > storyData.length - 1;
         if (currentPageIndex === 0) {
           pageIndicator.textContent = "כריכה";
         } else {
-          const endIndex = Math.min(currentPageIndex + 1, storyData.length - 1);
-          pageIndicator.textContent = `עמודים ${currentPageIndex}-${endIndex}`;
+          const spreadNumber = Math.ceil(currentPageIndex / 2);
+          pageIndicator.textContent = `עמוד ${spreadNumber} מתוך ${Math.floor(
+            (storyData.length - 1) / 2
+          )}`;
         }
       }
 
-      // Page Rendering
-      function renderPage(pageData) {
-        const pageElement = document.createElement("div");
-
-        if (pageData.type === "image") {
-          pageElement.className = "page image-page";
-          pageElement.innerHTML = `
-                    <img src="${pageData.src}" 
-                         alt="תמונה" 
-                         class="page-image"
-                         onerror="this.src='https://placehold.co/600x800/e5e7eb/9ca3af?text=תמונה+חסרה'" />
-                `;
-        } else if (pageData.type === "text") {
-          pageElement.className = "page text-page";
-          pageElement.innerHTML = `<div class="page-text">${pageData.content}</div>`;
+      function showSwipeIndicator() {
+        // Only show the indicator on the first page of the story
+        if (currentPageIndex === 1) {
+          swipeIndicator.innerHTML = "‹&nbsp;&nbsp;›";
+          swipeIndicator.classList.add("visible");
+          // The animation will auto-hide it
+          setTimeout(() => {
+            if (swipeIndicator) swipeIndicator.classList.remove("visible");
+          }, 3000);
         }
-
-        return pageElement;
       }
 
       function render() {
-        contentContainer.innerHTML = "";
+        // We need to re-add the swipe indicator if it was cleared
+        if (!contentContainer.contains(swipeIndicator)) {
+          contentContainer.appendChild(swipeIndicator);
+        }
+
+        // Clear only the story elements, not the indicator
+        Array.from(contentContainer.children).forEach((child) => {
+          if (child.id !== "swipe-indicator") {
+            contentContainer.removeChild(child);
+          }
+        });
+
+        const isMobile = window.innerWidth <= 768;
 
         if (currentPageIndex === 0) {
-          // Cover Page
           const coverData = storyData[0];
           const coverElement = document.createElement("div");
           coverElement.className = "cover-page";
@@ -463,29 +442,95 @@
           coverElement.innerHTML = `<h1 class="cover-title">${coverData.title}</h1>`;
           contentContainer.appendChild(coverElement);
         } else {
-          // Two-Page Spread
-          const spreadContainer = document.createElement("div");
-          spreadContainer.className = "spread-container";
+          const page1Data = storyData[currentPageIndex];
+          const page2Data = storyData[currentPageIndex + 1];
 
-          // Left page (current index)
-          const leftPageData = storyData[currentPageIndex];
-          if (leftPageData) {
-            spreadContainer.appendChild(renderPage(leftPageData));
+          if (isMobile) {
+            const spreadContainer = document.createElement("div");
+            spreadContainer.className = "mobile-spread-container";
+            const imageData =
+              page1Data.type === "image" ? page1Data : page2Data;
+            const textData = page1Data.type === "text" ? page1Data : page2Data;
+
+            if (imageData) {
+              spreadContainer.style.backgroundImage = `url('${imageData.src}')`;
+            }
+            if (textData) {
+              const textOverlay = document.createElement("div");
+              textOverlay.className = "text-overlay";
+              textOverlay.innerHTML = `<div class="page-text">${textData.content}</div>`;
+              spreadContainer.appendChild(textOverlay);
+            }
+            contentContainer.appendChild(spreadContainer);
+            showSwipeIndicator(); // Show the hint on mobile
+          } else {
+            const spreadContainer = document.createElement("div");
+            spreadContainer.className = "desktop-spread-container";
+
+            const renderDesktopPage = (pageData) => {
+              const pageElement = document.createElement("div");
+              if (pageData.type === "image") {
+                pageElement.className = "page image-page";
+                pageElement.innerHTML = `<img src="${pageData.src}" alt="תמונה מהסיפור" class="page-image">`;
+              } else {
+                pageElement.className = "page text-page";
+                pageElement.innerHTML = `<div class="page-text">${pageData.content}</div>`;
+              }
+              return pageElement;
+            };
+
+            spreadContainer.appendChild(renderDesktopPage(page1Data));
+            spreadContainer.appendChild(renderDesktopPage(page2Data));
+            contentContainer.appendChild(spreadContainer);
           }
-
-          // Right page (current index + 1)
-          const rightPageData = storyData[currentPageIndex + 1];
-          if (rightPageData) {
-            spreadContainer.appendChild(renderPage(rightPageData));
-          }
-
-          contentContainer.appendChild(spreadContainer);
         }
-
         updateNavigation();
       }
 
-      // Event Listeners
+      // --- TOUCH SWIPE LOGIC (RTL-FIXED) ---
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const swipeThreshold = 50; // Min pixels for a swipe
+
+      function handleSwipe() {
+        if (window.innerWidth > 768) return; // Only on mobile
+
+        // Swiped right (for RTL this is NEXT)
+        if (
+          touchEndX > touchStartX &&
+          touchEndX - touchStartX > swipeThreshold
+        ) {
+          if (!nextButton.disabled) nextButton.click();
+        }
+        // Swiped left (for RTL this is PREVIOUS)
+        if (
+          touchEndX < touchStartX &&
+          touchStartX - touchEndX > swipeThreshold
+        ) {
+          if (!prevButton.disabled) prevButton.click();
+        }
+      }
+
+      // Use the content area for swipe detection
+      const storybookApp = document.querySelector(".storybook-app");
+      storybookApp.addEventListener(
+        "touchstart",
+        (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        },
+        { passive: true }
+      );
+
+      storybookApp.addEventListener(
+        "touchend",
+        (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        },
+        { passive: true }
+      );
+
+      // --- EVENT LISTENERS ---
       prevButton.addEventListener("click", () => {
         if (currentPageIndex > 0) {
           currentPageIndex = currentPageIndex === 1 ? 0 : currentPageIndex - 2;
@@ -500,16 +545,12 @@
         }
       });
 
-      // Keyboard Navigation
       document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight" && !nextButton.disabled) {
-          nextButton.click();
-        } else if (e.key === "ArrowLeft" && !prevButton.disabled) {
-          prevButton.click();
-        }
+        if (e.key === "ArrowRight" && !nextButton.disabled) nextButton.click();
+        if (e.key === "ArrowLeft" && !prevButton.disabled) prevButton.click();
       });
 
-      // Initialize
+      window.addEventListener("resize", render);
       document.addEventListener("DOMContentLoaded", render);
     </script>
   </body>
