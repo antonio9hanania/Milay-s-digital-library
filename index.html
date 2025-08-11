@@ -150,6 +150,8 @@
         height: 100%; /* Let flexbox handle the height */
         background: white;
         display: block;
+        -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+        overflow-y: auto; /* Ensure vertical scrolling is enabled */
       }
 
       .container {
@@ -923,7 +925,15 @@ book2/
                         <div class="book-title-header hebrew">${book.title}</div>
                         <div style="width: 150px;"></div>
                     </div>
-                    <iframe id="bookIframe" class="book-iframe" src="${book.path}" onload="resetIframeScroll()" scrolling="yes"></iframe>
+                    <iframe id="bookIframe" 
+                            class="book-iframe" 
+                            src="${book.path}" 
+                            onload="resetIframeScroll()" 
+                            scrolling="yes"
+                            allow="autoplay; fullscreen"
+                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                            style="overflow-y: auto; -webkit-overflow-scrolling: touch;">
+                    </iframe>
                 `;
         }, 300);
 
@@ -963,6 +973,17 @@ book2/
               ) {
                 iframe.contentDocument.documentElement.style.scrollBehavior =
                   "smooth";
+
+                // Add mobile-specific styles to the iframe content
+                if (window.innerWidth <= 768) {
+                  const iframeBody = iframe.contentDocument.body;
+                  if (iframeBody) {
+                    iframeBody.style.overflowY = "auto";
+                    iframeBody.style.webkitOverflowScrolling = "touch";
+                    iframeBody.style.height = "auto";
+                    iframeBody.style.minHeight = "100%";
+                  }
+                }
               }
 
               console.log("📖 ספר נטען והוגדר למעלה - גלילה זמינה");
