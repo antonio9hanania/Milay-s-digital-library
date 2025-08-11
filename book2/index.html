@@ -15,9 +15,11 @@
       }
       html,
       body {
-        overflow: auto !important; /* Override the overflow:hidden */
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
         height: auto !important;
         min-height: 100% !important;
+        position: relative !important;
       }
       .storybook-container {
         max-width: 1100px;
@@ -26,9 +28,12 @@
         border-radius: 0.5rem;
         display: flex;
         flex-direction: column;
-        min-height: 80vh; /* ✅ Minimum height, can grow */
+        min-height: 80vh; /* Your change */
         background-color: #fff;
-        height: auto !important; /* Let it grow naturally */
+        height: auto !important; /* Your change */
+        /* iOS iframe fixes */
+        position: relative;
+        overflow: visible;
       }
       .storybook-body {
         flex-grow: 1;
@@ -140,11 +145,6 @@
           font-size: 1.1rem; /* Adjust font size for mobile */
           line-height: 1.6;
         }
-        body {
-          overflow-y: auto; /* Ensure vertical scrolling on mobile */
-          -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
-        }
-
         html,
         body {
           overflow-y: auto !important;
@@ -152,8 +152,33 @@
         }
 
         .storybook-container {
-          max-height: 85vh; /* Full viewport height on mobile */
-          margin: 0; /* Remove margins */
+          min-height: 80vh; /* Your change */
+          max-height: none !important; /* Remove max-height restriction */
+          margin: 0;
+          /* Ensure proper spacing in iframe */
+          padding-bottom: 20px;
+        }
+
+        .storybook-body {
+          overflow-y: visible !important;
+          min-height: auto;
+        }
+
+        /* Ensure pagination is accessible */
+        .nav-button {
+          margin-bottom: 10px !important;
+        }
+      }
+      /* iOS Safari specific */
+      @supports (-webkit-touch-callout: none) {
+        body {
+          -webkit-overflow-scrolling: touch !important;
+          overflow-y: auto !important;
+        }
+
+        .storybook-container {
+          -webkit-overflow-scrolling: touch;
+          transform: translateZ(0); /* Hardware acceleration */
         }
       }
     </style>

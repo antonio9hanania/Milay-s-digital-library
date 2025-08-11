@@ -895,14 +895,42 @@ book2/
         // Instantly scroll homepage to top so transitions look clean
         window.scrollTo(0, 0);
 
-        // Prevent body scroll when book is open
-        document.body.style.overflow = "hidden";
+        // Enhanced iOS-friendly body lock
+        const body = document.body;
+        body.style.overflow = "hidden";
+        body.style.position = "fixed";
+        body.style.top = "0";
+        body.style.left = "0";
+        body.style.width = "100%";
+        body.style.height = "100%";
 
-        // Add reading mode class for mobile
-        document.body.classList.add("reading-mode");
+        // Add reading mode class for mobile optimizations
+        body.classList.add("reading-mode");
 
         // Show loading and update header in one go
         const reader = document.getElementById("bookReader");
+        reader.innerHTML = `
+                <div class="book-header">
+                    <button class="home-btn hebrew" onclick="returnToLibrary()">
+                        🏠 חזרה לספרייה
+                    </button>
+                    <div class="book-title-header hebrew">${book.title}</div>
+                    <div style="width: 120px;"></div>
+                </div>
+                <div style="grid-area: content; display: flex; align-items: center; justify-content: center; background: #f8f9fa; color: #666;">
+                    <div class="hebrew" style="text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">📚</div>
+                        <div>טוען ספר...</div>
+                    </div>
+                </div>
+                <div class="book-footer">
+                    <span class="hebrew">📖 טוען... 📖</span>
+                </div>
+            `;
+
+        // Transition views
+        document.getElementById("libraryView").classList.add("hidden");
+        reader.classList.add("visible");
         reader.innerHTML = `
                 <div class="book-header">
                     <button class="home-btn hebrew" onclick="returnToLibrary()">
@@ -920,7 +948,7 @@ book2/
         document.getElementById("libraryView").classList.add("hidden");
         reader.classList.add("visible");
 
-        // Load the book after animation
+        // Load the book after animation with proper error handling
         setTimeout(() => {
           reader.innerHTML = `
                     <div class="book-header">
@@ -928,17 +956,23 @@ book2/
                             🏠 חזרה לספרייה
                         </button>
                         <div class="book-title-header hebrew">${book.title}</div>
-                        <div style="width: 150px;"></div>
+                        <div style="width: 120px;"></div>
                     </div>
                     <iframe id="bookIframe" 
                             class="book-iframe" 
                             src="${book.path}" 
                             onload="resetIframeScroll()"
+                            onerror="handleIframeError()"
                             frameborder="0"
-                            scrolling="yes">
+                            scrolling="yes"
+                            allowfullscreen
+                            allow="fullscreen"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+                            loading="eager"
+                            importance="high">
                     </iframe>
                     <div class="book-footer">
-                        ✨ גלילה בתוך הספר ✨
+                        <span class="hebrew">📖 גלול בתוך הספר לניווט 📖</span>
                     </div>
                 `;
         }, 300);
@@ -947,11 +981,17 @@ book2/
       }
 
       function returnToLibrary() {
-        // Restore body scroll
-        document.body.style.overflow = "";
+        // Enhanced body restore for iOS Safari
+        const body = document.body;
+        body.style.overflow = "";
+        body.style.position = "";
+        body.style.top = "";
+        body.style.left = "";
+        body.style.width = "";
+        body.style.height = "";
 
         // Remove reading mode class
-        document.body.classList.remove("reading-mode");
+        body.classList.remove("reading-mode");
 
         // Transition back to library
         document.getElementById("bookReader").classList.remove("visible");
@@ -960,24 +1000,72 @@ book2/
         // Clear current book
         currentBook = null;
 
-        console.log("🏠 חזרה לספרייה");
+        console.log("🏠 חזרה לספרייה - מצב קריאה בוטל");
       }
 
       function resetIframeScroll() {
-        // Small delay to ensure iframe is fully loaded
+        // Enhanced iframe scroll management for iOS Safari
         setTimeout(() => {
           const iframe = document.getElementById("bookIframe");
           if (iframe && iframe.contentWindow) {
             try {
-              // Reset iframe scroll to top
+              // Reset scroll position
               iframe.contentWindow.scrollTo(0, 0);
-              console.log("📖 ספר נטען והוגדר למעלה");
+
+              // iOS Safari specific iframe fixes
+              if (iframe.contentDocument) {
+                const iframeDocument = iframe.contentDocument;
+                const iframeBody = iframeDocument.body;
+                const iframeHtml = iframeDocument.documentElement;
+
+                // Apply iOS-friendly CSS to iframe content
+                if (iframeBody) {
+                  iframeBody.style.overflow = "auto";
+                  iframeBody.style.webkitOverflowScrolling = "touch";
+                  iframeBody.style.position = "relative";
+                  iframeBody.style.minHeight = "100%";
+                }
+
+                if (iframeHtml) {
+                  iframeHtml.style.overflow = "auto";
+                  iframeHtml.style.height = "100%";
+                  iframeHtml.style.minHeight = "100%";
+                }
+
+                // Add iOS Safari specific meta viewport if missing
+                let viewport = iframeDocument.querySelector(
+                  'meta[name="viewport"]'
+                );
+                if (!viewport && window.innerWidth <= 768) {
+                  viewport = iframeDocument.createElement("meta");
+                  viewport.name = "viewport";
+                  viewport.content =
+                    "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+                  iframeDocument.head.appendChild(viewport);
+                }
+              }
+
+              console.log("📖 ספר נטען בהצלחה - iOS Safari אופטימיזציה הופעלה");
             } catch (e) {
-              // Cross-origin or security restrictions
-              console.log("📖 ספר נטען בהצלחה");
+              // Cross-origin restrictions or other issues
+              console.log(
+                "📖 ספר נטען - גלילה פנימית זמינה (same-origin limitations)"
+              );
             }
           }
         }, 200);
+      }
+
+      function handleIframeError() {
+        console.error("שגיאה בטעינת הספר");
+        const iframe = document.getElementById("bookIframe");
+        if (iframe) {
+          iframe.style.display = "flex";
+          iframe.style.alignItems = "center";
+          iframe.style.justifyContent = "center";
+          iframe.innerHTML =
+            '<div style="text-align: center; color: #666;">שגיאה בטעינת הספר<br>נסה לרענן את הדף</div>';
+        }
       }
 
       // Initialize the magical library
