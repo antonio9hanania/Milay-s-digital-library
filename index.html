@@ -62,6 +62,7 @@
         position: relative;
         width: 100%;
         min-height: 100vh;
+        overflow-x: hidden; /* Prevent horizontal scroll on mobile */
       }
 
       .library-view {
@@ -80,17 +81,18 @@
       }
 
       .book-reader {
-        position: absolute;
+        position: fixed; /* Changed to fixed for better mobile behavior */
         top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
+        left: 0; /* Changed from right to left */
+        width: 100vw; /* Use viewport width */
+        height: 100vh; /* Use viewport height */
         background: white;
         transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         transform: translateX(100%);
-        z-index: 3;
+        z-index: 1000; /* Higher z-index to ensure it's on top */
         display: flex;
         flex-direction: column;
+        overflow: hidden; /* Prevent any overflow */
       }
 
       .book-reader.visible {
@@ -107,6 +109,7 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 10;
         position: relative;
+        flex-shrink: 0; /* Don't let header shrink */
       }
 
       .home-btn {
@@ -144,7 +147,9 @@
         flex: 1;
         border: none;
         width: 100%;
+        height: 100%; /* Let flexbox handle the height */
         background: white;
+        display: block;
       }
 
       .container {
@@ -519,6 +524,43 @@
           padding: 10px 20px;
           font-size: 1em;
         }
+
+        /* Ensure proper mobile behavior */
+        .library-view {
+          position: relative; /* Change to relative on mobile */
+          width: 100%;
+          min-height: 100vh;
+          padding: 15px;
+        }
+
+        .library-view.hidden {
+          display: none; /* Hide completely on mobile instead of transform */
+        }
+
+        .book-reader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          transform: translateX(100%);
+          z-index: 1000;
+        }
+
+        .book-reader.visible {
+          transform: translateX(0);
+        }
+
+        .book-iframe {
+          height: calc(100vh - 70px); /* Adjust for smaller mobile header */
+        }
+
+        /* Prevent any scrolling when book is open on mobile */
+        body.reading-mode {
+          overflow: hidden;
+          position: fixed;
+          width: 100%;
+        }
       }
 
       .hebrew {
@@ -849,6 +891,9 @@ book2/
         // Prevent body scroll when book is open
         document.body.style.overflow = "hidden";
 
+        // Add reading mode class for mobile
+        document.body.classList.add("reading-mode");
+
         // Show loading and update header in one go
         const reader = document.getElementById("bookReader");
         reader.innerHTML = `
@@ -878,7 +923,7 @@ book2/
                         <div class="book-title-header hebrew">${book.title}</div>
                         <div style="width: 150px;"></div>
                     </div>
-                    <iframe id="bookIframe" class="book-iframe" src="${book.path}" onload="resetIframeScroll()"></iframe>
+                    <iframe id="bookIframe" class="book-iframe" src="${book.path}" onload="resetIframeScroll()" scrolling="yes"></iframe>
                 `;
         }, 300);
 
@@ -888,6 +933,9 @@ book2/
       function returnToLibrary() {
         // Restore body scroll
         document.body.style.overflow = "";
+
+        // Remove reading mode class
+        document.body.classList.remove("reading-mode");
 
         // Transition back to library
         document.getElementById("bookReader").classList.remove("visible");
@@ -907,10 +955,20 @@ book2/
             try {
               // Reset iframe scroll to top
               iframe.contentWindow.scrollTo(0, 0);
-              console.log("📖 ספר נטען והוגדר למעלה");
+
+              // Enable smooth scrolling within the iframe if supported
+              if (
+                iframe.contentDocument &&
+                iframe.contentDocument.documentElement
+              ) {
+                iframe.contentDocument.documentElement.style.scrollBehavior =
+                  "smooth";
+              }
+
+              console.log("📖 ספר נטען והוגדר למעלה - גלילה זמינה");
             } catch (e) {
               // Cross-origin iframe, can't control scroll
-              console.log("📖 ספר נטען בהצלחה");
+              console.log("📖 ספר נטען בהצלחה - גלילה זמינה");
             }
           }
         }, 100);

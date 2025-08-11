@@ -4,326 +4,342 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>חיוך העל של מילאי</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Custom styles for the storybook */
+      @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap");
       body {
-        font-family: "Heebo", sans-serif;
-        touch-action: manipulation; /* Improves touch responsiveness */
-        overflow: hidden; /* Prevent scrolling on the body */
+        font-family: "Assistant", sans-serif;
+        background-color: #f0f2f5;
+        overflow: hidden; /* Prevent body scroll */
       }
-
-      .book-container {
-        max-width: 1200px;
+      .storybook-container {
+        max-width: 1100px;
         width: 100%;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
         height: 90vh;
-        max-height: 700px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        transition: transform 0.5s ease-in-out;
-        perspective: 2500px;
+        background-color: #fff;
       }
-
+      .storybook-body {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 1rem;
+        overflow-y: auto;
+      }
+      /* Cover Page Styles */
+      .cover-page {
+        width: 100%; /* Cover takes full width of the body */
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.25rem;
+      }
+      .cover-title {
+        color: white;
+        font-size: 2.8rem;
+        font-weight: 700;
+        text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8);
+        padding: 1.5rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 0.5rem;
+        text-align: center;
+      }
+      /* Two-page Spread Styles */
       .spread-container {
-        display: none; /* Hidden by default */
+        display: flex;
         width: 100%;
         height: 100%;
+        gap: 1rem;
       }
-
-      .spread-container.active {
-        display: flex; /* Shown when active */
-      }
-
-      .cover-page-container {
-        background: linear-gradient(
-          to bottom,
-          #fffbeb,
-          #fef3c7
-        ); /* Light yellow gradient */
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-
       .page {
         width: 50%;
         height: 100%;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
         align-items: center;
-        padding: 2.5rem;
-        position: relative;
-      }
-
-      .page.full-width {
-        width: 100%;
-      }
-
-      .page-image-container {
-        background-color: #f9fafb; /* bg-gray-50 */
-      }
-
-      .page-text-container {
+        justify-content: center;
         background-color: #fff;
+        border-radius: 0.25rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
       }
-
-      .page-image {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .cover-image {
-        max-width: 45%;
-        height: auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      }
-
-      .page-text {
+      .page.text-page {
+        padding: 2.5rem;
         text-align: center;
-        line-height: 1.9;
       }
-
+      .page.image-page {
+        padding: 1rem; /* Add padding around the image */
+        background-color: #f9fafb; /* Light gray background for the image page */
+      }
+      .page-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 0.5rem;
+      }
+      .page p {
+        font-size: 1.5rem;
+        line-height: 1.7;
+      }
       .nav-button {
-        transition: background-color 0.3s, transform 0.2s;
+        transition: all 0.2s ease-in-out;
+        border: 1px solid #d1d5db;
       }
-
+      .nav-button:hover:not(:disabled) {
+        background-color: #e5e7eb;
+        transform: scale(1.05);
+      }
       .nav-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
 
-      .nav-button:hover:not(:disabled) {
-        transform: translateY(-2px);
-      }
-
-      .page-number {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: #9ca3af; /* gray-400 */
-      }
-
-      /* Responsive layout for smaller screens */
+      /* --- Responsive Styles for Mobile & Zoom --- */
       @media (max-width: 768px) {
-        .book-container {
-          height: 85vh;
-          max-height: none;
+        .storybook-body {
+          padding: 0.5rem;
         }
-        .spread-container.two-pages {
-          flex-direction: column !important; /* Important to override inline styles */
+        .cover-page {
+          width: 100%;
+        }
+        .cover-title {
+          font-size: 1.8rem;
+        }
+        .spread-container {
+          flex-direction: column; /* Stack pages vertically */
+          height: 100%;
+          width: 100%;
         }
         .page {
           width: 100%;
-          height: 50%;
+          height: 50%; /* Each page takes half the vertical space */
+        }
+        .page.image-page {
+          padding: 0.5rem;
+        }
+        .page.text-page {
           padding: 1rem;
         }
-        .page-text {
-          font-size: 1.125rem; /* text-lg */
-        }
-        .cover-image {
-          max-width: 60%;
+        .page p {
+          font-size: 1.1rem; /* Adjust font size for mobile */
+          line-height: 1.6;
         }
       }
     </style>
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div
-      id="storybook"
-      class="book-container w-full bg-white rounded-2xl flex relative overflow-hidden"
-    >
-      <!-- Spreads will be dynamically generated here -->
-    </div>
-
-    <!-- Navigation Controls -->
-    <div
-      id="nav-controls"
-      class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 z-10"
-    >
-      <button
-        id="prev-btn"
-        class="nav-button bg-white text-gray-800 py-3 px-6 rounded-full shadow-lg font-bold"
+  <body class="flex items-center justify-center min-h-screen p-4">
+    <div class="storybook-container">
+      <div id="storybook-body" class="storybook-body">
+        <!-- Content is rendered here by JavaScript -->
+      </div>
+      <div
+        class="flex-shrink-0 flex justify-between items-center p-4 bg-gray-100 border-t"
       >
-        הקודם
-      </button>
-      <button
-        id="next-btn"
-        class="nav-button bg-yellow-400 text-white py-3 px-6 rounded-full shadow-lg font-bold"
-      >
-        הבא
-      </button>
+        <button
+          id="prev-button"
+          class="nav-button bg-white text-gray-800 font-bold py-2 px-6 rounded-full shadow-sm"
+        >
+          הקודם
+        </button>
+        <div
+          id="page-indicator"
+          class="text-gray-700 font-semibold text-lg"
+        ></div>
+        <button
+          id="next-button"
+          class="nav-button bg-white text-gray-800 font-bold py-2 px-6 rounded-full shadow-sm"
+        >
+          הבא
+        </button>
+      </div>
     </div>
 
     <script>
       // --- Story Data ---
       const storyData = [
+        { type: "cover", image: "images/1.jpg", title: "חיוך העל של מילאי" },
+        // Spread 1
+        { type: "image", src: "images/2.jpg" },
         {
-          type: "cover",
-          image: "images/1.jpg",
-          title: "חיוך העל של מילאי",
+          type: "text",
+          content:
+            'יום אחד, אמא של מילאי הכינה עוגת שוקולד טעימה. "העוגה הזאת היא הפתעה לארוחת הערב," אמרה אמא. "אסור לאכול אותה עדיין."',
         },
+        // Spread 2
         {
-          type: "page",
-          image: "images/3.jpg",
-          text: 'יום אחד, אמא של מילאי הכינה עוגת שוקולד טעימה. "העוגה הזאת היא הפתעה לארוחת הערב," אמרה אמא. "אסור לאכול אותה עדיין."',
+          type: "text",
+          content:
+            "מילאי הריחה את ריח השוקולד המתוק. הבטן שלה קרקרה. היא ממש רצתה חתיכה מהעוגה.",
         },
+        { type: "image", src: "images/3.jpg" },
+        // Spread 3
+        { type: "image", src: "images/4.jpg" },
         {
-          type: "page",
-          image: "images/4.jpg",
-          text: "מילאי הריחה את ריח השוקולד המתוק. הבטן שלה קרקרה. היא ממש רצתה חתיכה מהעוגה.",
+          type: "text",
+          content:
+            'היא ניגשה לאמא שלה, חייכה את "חיוך העל" שלה ושאלה, "אפשר רק חתיכה קטנטנה?"',
         },
+        // Spread 4
         {
-          type: "page",
-          image: "images/5.jpg",
-          text: 'היא ניגשה לאמא שלה, חייכה את "חיוך העל" שלה ושאלה, "אפשר רק חתיכה קטנטנה?"',
+          type: "text",
+          content:
+            'אמא של מילאי לא יכלה לעמוד בפני החיוך המתוק הזה. "טוב, אבל רק חתיכה קטנה," היא אמרה ונתנה למילאי חתיכה קטנה מהעוגה.',
         },
+        { type: "image", src: "images/5.jpg" },
+        // Spread 5
+        { type: "image", src: "images/6.jpg" },
         {
-          type: "page",
-          image: "images/6.jpg",
-          text: 'אמא של מילאי לא יכלה לעמוד בפני החיוך המתוק הזה. "טוב, אבל רק חתיכה קטנה," היא אמרה ונתנה למילאי חתיכה קטנה מהעוגה.',
+          type: "text",
+          content:
+            'מאוחר יותר, מילאי רצתה לצייר. אמא שלה הכינה לה צבעים ודפים ואמרה, "תציירי בזהירות, טוב? כדי שהצבע לא ילכלך שום דבר."',
         },
+        // Spread 6
         {
-          type: "page",
-          image: "images/7.jpg",
-          text: 'מאוחר יותר, מילאי רצתה לצייר. אמא שלה הכינה לה צבעים ודפים ואמרה, "תציירי בזהירות, טוב? כדי שהצבע לא ילכלך שום דבר."',
+          type: "text",
+          content:
+            "מילאי ציירה פרח גדול ויפה, אבל מרוב התלהבות, המכחול שלה החליק וכתם של צבע כחול קפץ ישר על הקיר הלבן!",
         },
+        { type: "image", src: "images/7.jpg" },
+        // Spread 7
+        { type: "image", src: "images/8.jpg" },
         {
-          type: "page",
-          image: "images/8.jpg",
-          text: "מילאי ציירה פרח גדול ויפה, אבל מרוב התלהבות, המכחול שלה החליק וכתם של צבע כחול קפץ ישר על הקיר הלבן!",
+          type: "text",
+          content:
+            'בדיוק אז אמא נכנסה לחדר. היא ראתה את כתם הצבע ונעשתה רצינית. מילאי מיד חייכה את "חיוך העל" שלה, בתקווה שאמא לא תכעס.',
         },
+        // Spread 8
         {
-          type: "page",
-          image: "images/9.jpg",
-          text: 'בדיוק אז אמא נכנסה לחדר. היא ראתה את כתם הצבע ונעשתה רצינית. מילאי מיד חייכה את "חיוך העל" שלה, בתקווה שאמא לא תכעס.',
+          type: "text",
+          content:
+            'אבל הפעם, החיוך לא עבד. "מילאי," אמרה אמא, "החיוך שלך מקסים, אבל הוא לא יכול לנקות את הקיר. כשעושים טעות, צריך לקחת אחריות."',
         },
+        { type: "image", src: "images/9.jpg" },
+        // Spread 9
+        { type: "image", src: "images/10.jpg" },
         {
-          type: "page",
-          image: "images/10.jpg",
-          text: 'אבל הפעם, החיוך לא עבד. "מילאי," אמרה אמא, "החיוך שלך מקסים, אבל הוא לא יכול לנקות את הקיר. כשעושים טעות, צריך לקחת אחריות."',
-        },
-        {
-          type: "page",
-          image: "images/11.jpg",
-          text: 'מילאי הבינה. היא חיבקה את אמא. "אני מצטערת. אני אעזור לך לנקות," היא אמרה. וביחד, הן ניקו את הקיר. הפעם, מילאי לא השתמשה ב"חיוך העל", אלא בחיוך אמיתי, מלא אהבה.',
+          type: "text",
+          content:
+            'מילאי הבינה. היא חיבקה את אמא. "אני מצטערת. אני אעזור לך לנקות," היא אמרה. וביחד, הן ניקו את הקיר. הפעם, מילאי לא השתמשה ב"חיוך העל", אלא בחיוך אמיתי, מלא אהבה.',
         },
       ];
 
       // --- DOM Elements ---
-      const storybookContainer = document.getElementById("storybook");
-      const nextBtn = document.getElementById("next-btn");
-      const prevBtn = document.getElementById("prev-btn");
+      const storybookBody = document.getElementById("storybook-body");
+      const prevButton = document.getElementById("prev-button");
+      const nextButton = document.getElementById("next-button");
+      const pageIndicator = document.getElementById("page-indicator");
 
       // --- State ---
-      let currentPageIndex = 0;
+      let currentPageIndex = 0; // 0 for cover, 1 for first spread, 3, 5, etc.
 
       // --- Functions ---
 
-      /**
-       * Renders all pages and spreads into the storybook container.
-       */
-      function buildBook() {
-        let contentHtml = "";
-        storyData.forEach((pageData, index) => {
-          const isActive = index === 0 ? "active" : "";
+      function updateButtons() {
+        prevButton.disabled = currentPageIndex === 0;
+        // Disable 'next' if the next spread index is out of bounds
+        nextButton.disabled = currentPageIndex + 2 >= storyData.length;
+      }
 
-          if (pageData.type === "cover") {
-            contentHtml += `
-                        <div class="spread-container ${isActive}" data-page-index="${index}">
-                            <div class="page full-width cover-page-container">
-                                <h1 class="text-4xl md:text-6xl font-bold text-yellow-800 mb-6" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">${
-                                  pageData.title
-                                }</h1>
-                                <img src="${
-                                  pageData.image
-                                }" alt="Book Cover" class="page-image cover-image rounded-lg">
-                                <div class="page-number text-sm">${
-                                  index + 1
-                                } / ${storyData.length}</div>
-                            </div>
-                        </div>
-                    `;
-          } else {
-            // Alternate layout for two-page spreads
-            const layoutClass =
-              index % 2 !== 0 ? "flex-row-reverse" : "flex-row";
-            contentHtml += `
-                        <div class="spread-container two-pages ${isActive} ${layoutClass}" data-page-index="${index}">
-                            <div class="page page-image-container">
-                                <img src="${pageData.image}" alt="Story page ${
-              index + 1
-            }" class="page-image" onerror="this.onerror=null;this.src='https://placehold.co/600x400/f8f8f8/ccc?text=Image+Not+Found';">
-                            </div>
-                            <div class="page page-text-container">
-                                <div class="page-text text-xl md:text-2xl text-gray-700">
-                                    <p>${pageData.text}</p>
-                                </div>
-                                <div class="page-number text-sm">${
-                                  index + 1
-                                } / ${storyData.length}</div>
-                            </div>
-                        </div>
-                    `;
+      function updatePageIndicator() {
+        if (currentPageIndex === 0) {
+          pageIndicator.textContent = "כריכה";
+        } else {
+          const rightPageNum = currentPageIndex + 1;
+          pageIndicator.textContent = `עמודים ${currentPageIndex}-${rightPageNum}`;
+        }
+      }
+
+      function renderPage(pageData) {
+        const pageElement = document.createElement("div");
+
+        if (pageData.type === "image") {
+          pageElement.classList.add("page", "image-page");
+          const imageElement = document.createElement("img");
+          imageElement.src = pageData.src;
+          imageElement.classList.add("page-image");
+          imageElement.onerror = () =>
+            (imageElement.src =
+              "https://placehold.co/500x700/e2e8f0/4a5568?text=Image+Not+Found");
+          pageElement.appendChild(imageElement);
+        } else if (pageData.type === "text") {
+          pageElement.classList.add("page", "text-page");
+          const textElement = document.createElement("p");
+          textElement.classList.add("text-gray-800", "leading-relaxed");
+          textElement.textContent = pageData.content;
+          pageElement.appendChild(textElement);
+        }
+        return pageElement;
+      }
+
+      function render() {
+        storybookBody.innerHTML = ""; // Always clear previous content
+
+        if (currentPageIndex === 0) {
+          // Render Cover
+          const coverData = storyData[0];
+          const coverElement = document.createElement("div");
+          coverElement.classList.add("cover-page");
+          coverElement.style.backgroundImage = `url('${coverData.image}')`;
+          const titleElement = document.createElement("h1");
+          titleElement.classList.add("cover-title");
+          titleElement.textContent = coverData.title;
+          coverElement.appendChild(titleElement);
+          storybookBody.appendChild(coverElement);
+        } else {
+          // Render a two-page spread
+          const spreadContainer = document.createElement("div");
+          spreadContainer.classList.add("spread-container");
+
+          const rightPageData = storyData[currentPageIndex];
+          if (rightPageData) {
+            spreadContainer.appendChild(renderPage(rightPageData));
           }
-        });
-        storybookContainer.innerHTML = contentHtml;
-      }
 
-      /**
-       * Displays the correct page/spread.
-       */
-      function showPage(index) {
-        document
-          .querySelectorAll(".spread-container")
-          .forEach((page) => page.classList.remove("active"));
-        const newPage = document.querySelector(
-          `.spread-container[data-page-index="${index}"]`
-        );
-        if (newPage) newPage.classList.add("active");
-        currentPageIndex = index;
-        updateNavButtons();
-      }
+          const leftPageData = storyData[currentPageIndex + 1];
+          if (leftPageData) {
+            spreadContainer.appendChild(renderPage(leftPageData));
+          }
 
-      /**
-       * Enables or disables navigation buttons based on the current page.
-       */
-      function updateNavButtons() {
-        prevBtn.disabled = currentPageIndex === 0;
-        nextBtn.disabled = currentPageIndex === storyData.length - 1;
+          storybookBody.appendChild(spreadContainer);
+        }
+
+        updatePageIndicator();
+        updateButtons();
       }
 
       // --- Event Listeners ---
-      nextBtn.addEventListener("click", () => {
-        if (currentPageIndex < storyData.length - 1) {
-          showPage(currentPageIndex + 1);
+      prevButton.addEventListener("click", () => {
+        if (currentPageIndex > 0) {
+          // If on the first spread, go to cover. Otherwise, go back 2 pages.
+          currentPageIndex = currentPageIndex === 1 ? 0 : currentPageIndex - 2;
+          render();
         }
       });
 
-      prevBtn.addEventListener("click", () => {
-        if (currentPageIndex > 0) {
-          showPage(currentPageIndex - 1);
+      nextButton.addEventListener("click", () => {
+        if (currentPageIndex + 2 < storyData.length) {
+          // If on cover, go to first spread. Otherwise, advance 2 pages.
+          currentPageIndex = currentPageIndex === 0 ? 1 : currentPageIndex + 2;
+          render();
         }
       });
 
       document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight" && !nextBtn.disabled) nextBtn.click();
-        else if (e.key === "ArrowLeft" && !prevBtn.disabled) prevBtn.click();
+        if (e.key === "ArrowRight" && !nextButton.disabled) nextButton.click();
+        else if (e.key === "ArrowLeft" && !prevButton.disabled)
+          prevButton.click();
       });
 
       // --- Initial Load ---
-      document.addEventListener("DOMContentLoaded", () => {
-        buildBook();
-        showPage(0); // Show the cover page first
-      });
+      document.addEventListener("DOMContentLoaded", render);
     </script>
   </body>
 </html>
