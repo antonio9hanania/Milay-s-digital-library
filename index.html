@@ -99,7 +99,7 @@
       .book-header {
         background: linear-gradient(45deg, #667eea, #764ba2);
         color: white;
-        padding: 20px;
+        padding: 15px 20px; /* Reduced padding for tighter spacing */
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -109,7 +109,7 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 80px; /* Fixed header height */
+        height: 65px; /* Reduced height for tighter spacing */
       }
 
       .home-btn {
@@ -145,10 +145,10 @@
 
       .book-iframe {
         position: absolute;
-        top: 80px; /* Start below the header */
+        top: 65px; /* Start below the reduced header */
         left: 0;
         right: 0;
-        bottom: 0; /* Stretch to bottom of container */
+        bottom: 5px; /* 5px padding from bottom */
         width: 100%;
         border: none;
         background: white;
@@ -931,7 +931,10 @@ book2/
                             src="${book.path}" 
                             onload="resetIframeScroll()"
                             frameborder="0"
-                            scrolling="auto">
+                            scrolling="yes"
+                            allowfullscreen
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                            style="overflow: auto !important;">
                     </iframe>
                 `;
         }, 300);
@@ -964,13 +967,36 @@ book2/
             try {
               // Reset iframe scroll to top
               iframe.contentWindow.scrollTo(0, 0);
-              console.log("📖 ספר נטען והוגדר למעלה - גלילה זמינה");
+
+              // Try to enable scrolling within the iframe content
+              if (iframe.contentDocument) {
+                const iframeBody = iframe.contentDocument.body;
+                const iframeHtml = iframe.contentDocument.documentElement;
+
+                if (iframeBody) {
+                  // Override the book's overflow:hidden
+                  iframeBody.style.overflow = "auto";
+                  iframeBody.style.overflowY = "auto";
+                  iframeBody.style.webkitOverflowScrolling = "touch";
+                  iframeBody.style.height = "auto";
+                  iframeBody.style.minHeight = "100%";
+                }
+
+                if (iframeHtml) {
+                  iframeHtml.style.overflow = "auto";
+                  iframeHtml.style.overflowY = "auto";
+                  iframeHtml.style.height = "auto";
+                  iframeHtml.style.minHeight = "100%";
+                }
+              }
+
+              console.log("📖 ספר נטען - ניסיון לתיקון גלילה");
             } catch (e) {
-              // Cross-origin iframe, can't control scroll but that's OK
-              console.log("📖 ספר נטען בהצלחה - גלילה זמינה");
+              // Cross-origin or other issues
+              console.log("📖 ספר נטען - לא ניתן לשלוט בגלילה מסיבות אבטחה");
             }
           }
-        }, 100);
+        }, 500); // Longer delay to ensure full load
       }
 
       // Initialize the magical library

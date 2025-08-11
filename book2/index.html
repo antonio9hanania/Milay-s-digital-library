@@ -20,7 +20,7 @@
         border-radius: 0.5rem;
         display: flex;
         flex-direction: column;
-        height: 90vh;
+        min-height: 90vh; /* ✅ Minimum height, can grow */
         background-color: #fff;
       }
       .storybook-body {
@@ -132,6 +132,15 @@
         .page p {
           font-size: 1.1rem; /* Adjust font size for mobile */
           line-height: 1.6;
+        }
+        body {
+          overflow-y: auto; /* Ensure vertical scrolling on mobile */
+          -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+        }
+
+        .storybook-container {
+          min-height: 100vh; /* Full viewport height on mobile */
+          margin: 0; /* Remove margins */
         }
       }
     </style>
