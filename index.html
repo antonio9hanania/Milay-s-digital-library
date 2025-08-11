@@ -1004,7 +1004,7 @@ book2/
       }
 
       function resetIframeScroll() {
-        // Enhanced iframe scroll management for iOS Safari
+        // Enhanced iframe scroll management for constrained height
         setTimeout(() => {
           const iframe = document.getElementById("bookIframe");
           if (iframe && iframe.contentWindow) {
@@ -1012,48 +1012,70 @@ book2/
               // Reset scroll position
               iframe.contentWindow.scrollTo(0, 0);
 
-              // iOS Safari specific iframe fixes
-              if (iframe.contentDocument) {
+              // Critical: Apply mobile constraints to iframe content
+              if (iframe.contentDocument && window.innerWidth <= 768) {
                 const iframeDocument = iframe.contentDocument;
                 const iframeBody = iframeDocument.body;
                 const iframeHtml = iframeDocument.documentElement;
 
-                // Apply iOS-friendly CSS to iframe content
+                // CRITICAL FIX: Force book content to respect iframe constraints
                 if (iframeBody) {
                   iframeBody.style.overflow = "auto";
                   iframeBody.style.webkitOverflowScrolling = "touch";
+                  iframeBody.style.height = "auto";
+                  iframeBody.style.maxHeight = "85vh";
                   iframeBody.style.position = "relative";
-                  iframeBody.style.minHeight = "100%";
                 }
 
                 if (iframeHtml) {
                   iframeHtml.style.overflow = "auto";
-                  iframeHtml.style.height = "100%";
-                  iframeHtml.style.minHeight = "100%";
+                  iframeHtml.style.height = "auto";
+                  iframeHtml.style.maxHeight = "85vh";
+                }
+
+                // Fix storybook container height - but preserve cover page
+                const storybookContainer = iframeDocument.querySelector(
+                  ".storybook-container"
+                );
+                if (storybookContainer) {
+                  storybookContainer.style.maxHeight = "80vh !important";
+                  storybookContainer.style.minHeight = "75vh !important";
+                  storybookContainer.style.overflow = "auto";
+
+                  // Special handling for cover page
+                  const coverPage = iframeDocument.querySelector(".cover-page");
+                  if (coverPage) {
+                    // Cover page gets fixed height to maintain image size
+                    storybookContainer.style.height = "80vh !important";
+                    coverPage.style.width = "100% !important";
+                    coverPage.style.height = "70vh !important";
+                    coverPage.style.minHeight = "400px !important";
+                  } else {
+                    // Regular pages get flexible height
+                    storybookContainer.style.height = "auto !important";
+                  }
                 }
 
                 // Add iOS Safari specific meta viewport if missing
                 let viewport = iframeDocument.querySelector(
                   'meta[name="viewport"]'
                 );
-                if (!viewport && window.innerWidth <= 768) {
+                if (!viewport) {
                   viewport = iframeDocument.createElement("meta");
                   viewport.name = "viewport";
                   viewport.content =
-                    "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+                    "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover";
                   iframeDocument.head.appendChild(viewport);
                 }
               }
 
-              console.log("📖 ספר נטען בהצלחה - iOS Safari אופטימיזציה הופעלה");
+              console.log("📖 ספר נטען עם תיקון מיוחד לעמוד כריכה");
             } catch (e) {
-              // Cross-origin restrictions or other issues
-              console.log(
-                "📖 ספר נטען - גלילה פנימית זמינה (same-origin limitations)"
-              );
+              // Cross-origin restrictions
+              console.log("📖 ספר נטען בהגבלת גובה (same-origin limitations)");
             }
           }
-        }, 200);
+        }, 300);
       }
 
       function handleIframeError() {
