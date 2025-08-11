@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>הספרייה של מילאי הנסיכה</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Rubik", "Arial", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 50%,
+          #f093fb 100%
+        );
+        background-attachment: fixed;
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .sparkles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .sparkle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 3s infinite;
+        opacity: 0;
+      }
+
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0;
+          transform: scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .app-container {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      .library-view {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        min-height: 100vh;
+        padding: 20px;
+        transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 2;
+      }
+
+      .library-view.hidden {
+        transform: translateX(-100%);
+      }
+
+      .book-reader {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transform: translateX(100%);
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .book-reader.visible {
+        transform: translateX(0);
+      }
+
+      .book-header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        position: relative;
+      }
+
+      .home-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        backdrop-filter: blur(10px);
+        font-family: "Rubik", sans-serif;
+      }
+
+      .home-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .book-title-header {
+        font-size: 1.4em;
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        max-width: 60%;
+        text-align: center;
+      }
+
+      .book-iframe {
+        flex: 1;
+        border: none;
+        width: 100%;
+        background: white;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        padding-bottom: 40px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-top: 20px;
+        animation: fadeInDown 1s ease-out;
+      }
+
+      .crown {
+        font-size: 4em;
+        margin-bottom: 10px;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      h1 {
+        color: white;
+        font-size: 3.5em;
+        margin-bottom: 15px;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1.4em;
+        font-weight: 300;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .library-content {
+        padding-bottom: 40px;
+      }
+
+      .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 40px;
+        margin-top: 30px;
+        animation: fadeInUp 1s ease-out 0.3s both;
+      }
+
+      .book-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: pointer;
+        position: relative;
+      }
+
+      .book-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+      }
+
+      .book-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25),
+          0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+
+      .book-card:hover::before {
+        transform: translateX(100%);
+      }
+
+      .book-cover {
+        width: 100%;
+        height: 280px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      }
+
+      .book-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: scale-down;
+        transition: transform 0.4s ease;
+      }
+
+      .book-card:hover .book-cover img {
+        transform: scale(1.1);
+      }
+
+      .book-cover .fallback {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4em;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .book-info {
+        padding: 30px;
+        text-align: right;
+      }
+
+      .book-title {
+        font-size: 1.8em;
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 12px;
+        line-height: 1.3;
+      }
+
+      .book-description {
+        color: #636e72;
+        line-height: 1.7;
+        margin-bottom: 20px;
+        font-size: 1.05em;
+      }
+
+      .book-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.95em;
+        color: #74b9ff;
+        margin-bottom: 20px;
+      }
+
+      .read-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        font-family: "Rubik", sans-serif;
+      }
+
+      .read-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        background: linear-gradient(45deg, #5a67d8, #667eea);
+      }
+
+      .stats {
+        text-align: center;
+        margin: 30px 0;
+        animation: fadeInUp 1s ease-out 0.6s both;
+      }
+
+      .stats-container {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px 30px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .stats-item {
+        margin: 0 30px;
+        color: white;
+      }
+
+      .stats-number {
+        font-size: 2em;
+        font-weight: 700;
+        display: block;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .stats-label {
+        font-size: 1em;
+        font-weight: 300;
+        opacity: 0.9;
+      }
+
+      .loading {
+        text-align: center;
+        color: white;
+        font-size: 1.4em;
+        margin: 60px 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .scanning-progress {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        padding: 20px;
+        border-radius: 20px;
+        margin: 20px auto;
+        max-width: 500px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .progress-bar {
+        background: rgba(255, 255, 255, 0.3);
+        height: 10px;
+        border-radius: 5px;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        height: 100%;
+        border-radius: 5px;
+        width: 0%;
+        transition: width 0.3s ease;
+        box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+      }
+
+      .instructions {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        padding: 30px;
+        border-radius: 20px;
+        margin: 30px auto;
+        max-width: 800px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .magic-wand {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        font-size: 3em;
+        animation: float 3s ease-in-out infinite;
+        z-index: 4;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(10deg);
+        }
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .discovered-book {
+        opacity: 0;
+        animation: bookAppear 0.6s ease-out forwards;
+      }
+
+      @keyframes bookAppear {
+        0% {
+          opacity: 0;
+          transform: translateY(50px) scale(0.8);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .loading-book {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 1.5em;
+        color: #667eea;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5em;
+        }
+
+        .books-grid {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        .stats-container {
+          flex-direction: column;
+          padding: 20px;
+        }
+
+        .stats-item {
+          margin: 10px 0;
+        }
+
+        .book-info {
+          padding: 20px;
+        }
+
+        .book-header {
+          padding: 15px;
+        }
+
+        .book-title-header {
+          font-size: 1.2em;
+          max-width: 50%;
+        }
+
+        .home-btn {
+          padding: 10px 20px;
+          font-size: 1em;
+        }
+      }
+
+      .hebrew {
+        font-family: "Rubik", "Tahoma", "Arial", sans-serif;
+        letter-spacing: 0.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sparkles"></div>
+
+    <div class="app-container">
+      <!-- Library View -->
+      <div class="library-view" id="libraryView">
+        <div class="container">
+          <header>
+            <div class="crown">👑</div>
+            <h1 class="hebrew">הספרייה של מילאי הנסיכה</h1>
+            <p class="subtitle hebrew">אוסף סיפורים קסומים ומרתקים</p>
+          </header>
+
+          <div class="stats">
+            <div class="stats-container">
+              <div class="stats-item">
+                <span class="stats-number hebrew" id="bookCount">0</span>
+                <div class="stats-label hebrew">ספרים</div>
+              </div>
+              <div class="stats-item">
+                <span class="stats-number hebrew" id="scanProgress">0</span>
+                <div class="stats-label hebrew">נסרקו</div>
+              </div>
+              <div class="stats-item">
+                <span class="stats-number hebrew" id="totalStories">✨</span>
+                <div class="stats-label hebrew">קסם</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="library-content">
+            <div id="loadingMessage" class="loading hebrew">
+              ✨ מחפש את הספרים הקסומים של מילאי...
+            </div>
+
+            <div
+              id="scanningProgress"
+              class="scanning-progress hebrew"
+              style="display: none"
+            >
+              <div id="progressText">סורק תיקייה...</div>
+              <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+              </div>
+              <div
+                style="margin-top: 10px; font-size: 0.9em; opacity: 0.8"
+                id="foundText"
+              >
+                נמצאו 0 ספרים
+              </div>
+            </div>
+
+            <div
+              id="instructions"
+              class="instructions hebrew"
+              style="display: none"
+            >
+              <h3>📚 איך להוסיף ספרים חדשים</h3>
+              <p><strong>פשוט צור את המבנה הזה:</strong></p>
+              <pre
+                style="
+                  text-align: left;
+                  margin: 20px 0;
+                  padding: 20px;
+                  background: rgba(0, 0, 0, 0.2);
+                  border-radius: 10px;
+                  font-family: monospace;
+                "
+              >
+book1/
+├── index.html (עם &lt;title&gt;שם הסיפור&lt;/title&gt;)
+└── images/
+    └── 1.jpg (התמונה לעטיפה)
+
+book2/
+├── index.html (עם &lt;title&gt;שם הסיפור&lt;/title&gt;)
+└── images/
+    └── 1.jpg (התמונה לעטיפה)</pre
+              >
+
+              <p><strong>הספרייה תזהה אוטומטית:</strong></p>
+              <ul style="text-align: right; margin: 15px 0">
+                <li>✨ את שמות הסיפורים מתג ה-title</li>
+                <li>🎨 את התמונות מתיקיית images/1.jpg</li>
+                <li>📚 את כל התיקיות book1, book2, book3...</li>
+              </ul>
+            </div>
+
+            <div class="books-grid" id="booksContainer">
+              <!-- Books will be automatically discovered and loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Book Reader View -->
+      <div class="book-reader" id="bookReader">
+        <div class="book-header">
+          <button class="home-btn hebrew" onclick="returnToLibrary()">
+            🏠 חזרה לספרייה
+          </button>
+          <div class="book-title-header hebrew" id="currentBookTitle">
+            קורא ספר...
+          </div>
+          <div style="width: 150px"></div>
+          <!-- Spacer for centering -->
+        </div>
+        <iframe id="bookIframe" class="book-iframe" src=""></iframe>
+      </div>
+    </div>
+
+    <div class="magic-wand">🪄</div>
+
+    <script>
+      // Magical color schemes
+      const magicalColors = [
+        "linear-gradient(45deg, #667eea, #764ba2)",
+        "linear-gradient(45deg, #f093fb, #f5576c)",
+        "linear-gradient(45deg, #4facfe, #00f2fe)",
+        "linear-gradient(45deg, #43e97b, #38f9d7)",
+        "linear-gradient(45deg, #fa709a, #fee140)",
+        "linear-gradient(45deg, #a8edea, #fed6e3)",
+        "linear-gradient(45deg, #ff9a9e, #fecfef)",
+        "linear-gradient(45deg, #a18cd1, #fbc2eb)",
+        "linear-gradient(45deg, #ffecd2, #fcb69f)",
+        "linear-gradient(45deg, #89f7fe, #66a6ff)",
+      ];
+
+      let discoveredBooks = [];
+      let totalScanned = 0;
+      let currentBook = null;
+
+      function createSparkles() {
+        const sparklesContainer = document.querySelector(".sparkles");
+        for (let i = 0; i < 20; i++) {
+          const sparkle = document.createElement("div");
+          sparkle.className = "sparkle";
+          sparkle.style.left = Math.random() * 100 + "%";
+          sparkle.style.top = Math.random() * 100 + "%";
+          sparkle.style.animationDelay = Math.random() * 3 + "s";
+          sparkle.style.animationDuration = Math.random() * 2 + 2 + "s";
+          sparklesContainer.appendChild(sparkle);
+        }
+      }
+
+      // Extract title from HTML content
+      function extractTitleFromHTML(htmlContent) {
+        const titleMatch = htmlContent.match(/<title[^>]*>([^<]+)<\/title>/i);
+        if (titleMatch && titleMatch[1]) {
+          return titleMatch[1].trim();
+        }
+        return null;
+      }
+
+      // Check if a book folder exists and load its data
+      async function checkAndLoadBook(bookNumber) {
+        const folderName = `book${bookNumber}`;
+        const bookPath = `./${folderName}/index.html`;
+        const coverPath = `./${folderName}/images/1.jpg`;
+
+        try {
+          // Try to fetch the HTML file
+          const htmlResponse = await fetch(bookPath);
+          if (!htmlResponse.ok) {
+            return null; // Book doesn't exist
+          }
+
+          const htmlContent = await htmlResponse.text();
+          const title =
+            extractTitleFromHTML(htmlContent) || `ספר ${bookNumber}`;
+
+          // Check if cover image exists
+          let hasCover = false;
+          try {
+            const coverResponse = await fetch(coverPath);
+            hasCover = coverResponse.ok;
+          } catch (e) {
+            hasCover = false;
+          }
+
+          return {
+            id: bookNumber,
+            folderName: folderName,
+            title: title,
+            description: `גלו את הסיפור המרתק של "${title}"`,
+            path: bookPath,
+            coverPath: hasCover ? coverPath : null,
+            colorScheme: magicalColors[(bookNumber - 1) % magicalColors.length],
+          };
+        } catch (error) {
+          console.log(`Book ${bookNumber} not found:`, error.message);
+          return null;
+        }
+      }
+
+      // Auto-discover all books
+      async function autoDiscoverBooks() {
+        const loadingEl = document.getElementById("loadingMessage");
+        const progressEl = document.getElementById("scanningProgress");
+        const instructionsEl = document.getElementById("instructions");
+        const progressText = document.getElementById("progressText");
+        const progressFill = document.getElementById("progressFill");
+        const foundText = document.getElementById("foundText");
+
+        loadingEl.style.display = "block";
+        progressEl.style.display = "block";
+
+        discoveredBooks = [];
+        totalScanned = 0;
+        let bookNumber = 1;
+        let consecutiveNotFound = 0;
+        const maxConsecutiveNotFound = 3;
+
+        try {
+          while (
+            consecutiveNotFound < maxConsecutiveNotFound &&
+            bookNumber <= 20
+          ) {
+            progressText.textContent = `סורק book${bookNumber}... 📚`;
+            progressFill.style.width = `${Math.min(
+              (bookNumber / 10) * 100,
+              100
+            )}%`;
+            foundText.textContent = `נמצאו ${discoveredBooks.length} ספרים`;
+
+            totalScanned = bookNumber;
+            document.getElementById("scanProgress").textContent = totalScanned;
+
+            const bookData = await checkAndLoadBook(bookNumber);
+
+            if (bookData) {
+              discoveredBooks.push(bookData);
+              consecutiveNotFound = 0;
+              console.log(`✨ נמצא: ${bookData.title}`);
+
+              // Add the book to the grid immediately with animation
+              addBookToGrid(bookData);
+            } else {
+              consecutiveNotFound++;
+              console.log(
+                `❌ book${bookNumber} לא נמצא (${consecutiveNotFound}/${maxConsecutiveNotFound})`
+              );
+            }
+
+            bookNumber++;
+            await new Promise((resolve) => setTimeout(resolve, 150));
+          }
+
+          loadingEl.style.display = "none";
+          progressEl.style.display = "none";
+
+          if (discoveredBooks.length === 0) {
+            instructionsEl.style.display = "block";
+          } else {
+            updateStats();
+            console.log(
+              `🎉 סיום הסריקה! נמצאו ${discoveredBooks.length} ספרים קסומים!`
+            );
+          }
+        } catch (error) {
+          console.error("שגיאה בזמן הסריקה:", error);
+          loadingEl.style.display = "none";
+          progressEl.style.display = "none";
+          instructionsEl.style.display = "block";
+        }
+      }
+
+      function addBookToGrid(book) {
+        const container = document.getElementById("booksContainer");
+
+        const bookCard = document.createElement("div");
+        bookCard.className = "book-card discovered-book";
+        bookCard.onclick = () => openBook(book);
+        bookCard.style.animationDelay = `${discoveredBooks.length * 0.1}s`;
+
+        const coverHTML = book.coverPath
+          ? `<img src="${book.coverPath}" alt="${book.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" loading="lazy">
+                 <div class="fallback" style="display: none; background: ${book.colorScheme};">📖</div>`
+          : `<div class="fallback" style="background: ${book.colorScheme};">📖</div>`;
+
+        bookCard.innerHTML = `
+                <div class="book-cover">
+                    ${coverHTML}
+                </div>
+                <div class="book-info">
+                    <div class="book-title hebrew">${book.title}</div>
+                    <div class="book-description hebrew">${
+                      book.description
+                    }</div>
+                    <div class="book-meta hebrew">
+                        <span>ספר מספר ${book.id}</span>
+                        <span>✨ קסום ✨</span>
+                    </div>
+                    <button class="read-btn hebrew" onclick="event.stopPropagation(); openBook(discoveredBooks[${
+                      discoveredBooks.length - 1
+                    }])">
+                        🌟 בואו נקרא 🌟
+                    </button>
+                </div>
+            `;
+
+        container.appendChild(bookCard);
+      }
+
+      function updateStats() {
+        document.getElementById("bookCount").textContent =
+          discoveredBooks.length;
+        document.getElementById("scanProgress").textContent = totalScanned;
+        document.getElementById("totalStories").textContent = "🌟".repeat(
+          Math.min(discoveredBooks.length, 5)
+        );
+      }
+
+      function openBook(book) {
+        currentBook = book;
+
+        // Instantly scroll homepage to top so transitions look clean
+        window.scrollTo(0, 0);
+
+        // Prevent body scroll when book is open
+        document.body.style.overflow = "hidden";
+
+        // Show loading and update header in one go
+        const reader = document.getElementById("bookReader");
+        reader.innerHTML = `
+                <div class="book-header">
+                    <button class="home-btn hebrew" onclick="returnToLibrary()">
+                        🏠 חזרה לספרייה
+                    </button>
+                    <div class="book-title-header hebrew">${book.title}</div>
+                    <div style="width: 150px;"></div>
+                </div>
+                <div class="loading-book hebrew">
+                    ✨ טוען את הסיפור הקסום... 📖
+                </div>
+            `;
+
+        // Transition views
+        document.getElementById("libraryView").classList.add("hidden");
+        reader.classList.add("visible");
+
+        // Load the book after animation
+        setTimeout(() => {
+          reader.innerHTML = `
+                    <div class="book-header">
+                        <button class="home-btn hebrew" onclick="returnToLibrary()">
+                            🏠 חזרה לספרייה
+                        </button>
+                        <div class="book-title-header hebrew">${book.title}</div>
+                        <div style="width: 150px;"></div>
+                    </div>
+                    <iframe id="bookIframe" class="book-iframe" src="${book.path}" onload="resetIframeScroll()"></iframe>
+                `;
+        }, 300);
+
+        console.log(`📖 פותח ספר: ${book.title}`);
+      }
+
+      function returnToLibrary() {
+        // Restore body scroll
+        document.body.style.overflow = "";
+
+        // Transition back to library
+        document.getElementById("bookReader").classList.remove("visible");
+        document.getElementById("libraryView").classList.remove("hidden");
+
+        // Clear current book
+        currentBook = null;
+
+        console.log("🏠 חזרה לספרייה");
+      }
+
+      function resetIframeScroll() {
+        // Small delay to ensure iframe is fully loaded
+        setTimeout(() => {
+          const iframe = document.getElementById("bookIframe");
+          if (iframe && iframe.contentWindow) {
+            try {
+              // Reset iframe scroll to top
+              iframe.contentWindow.scrollTo(0, 0);
+              console.log("📖 ספר נטען והוגדר למעלה");
+            } catch (e) {
+              // Cross-origin iframe, can't control scroll
+              console.log("📖 ספר נטען בהצלחה");
+            }
+          }
+        }, 100);
+      }
+
+      // Initialize the magical library
+      document.addEventListener("DOMContentLoaded", () => {
+        createSparkles();
+        console.log("✨ מתחיל לחפש את הספרים הקסומים של מילאי... ✨");
+        autoDiscoverBooks();
+      });
+
+      // Add magical mouse interactions
+      document.addEventListener("mousemove", (e) => {
+        if (Math.random() < 0.02) {
+          const sparkle = document.createElement("div");
+          sparkle.style.position = "fixed";
+          sparkle.style.left = e.clientX + "px";
+          sparkle.style.top = e.clientY + "px";
+          sparkle.style.width = "4px";
+          sparkle.style.height = "4px";
+          sparkle.style.background = "white";
+          sparkle.style.borderRadius = "50%";
+          sparkle.style.pointerEvents = "none";
+          sparkle.style.zIndex = "1000";
+          sparkle.style.animation = "twinkle 0.8s ease-out forwards";
+
+          document.body.appendChild(sparkle);
+
+          setTimeout(() => {
+            if (document.body.contains(sparkle)) {
+              document.body.removeChild(sparkle);
+            }
+          }, 800);
+        }
+      });
+
+      // Handle browser back/forward
+      window.addEventListener("popstate", (e) => {
+        if (currentBook) {
+          returnToLibrary();
+        }
+      });
+
+      // Push state when opening book
+      function pushBookState(book) {
+        history.pushState({ book: book.id }, book.title, `#book${book.id}`);
+      }
+    </script>
+  </body>
+</html>

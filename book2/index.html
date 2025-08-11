@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>חיוך העל של מילאי</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom styles for the storybook */
+      body {
+        font-family: "Heebo", sans-serif;
+        touch-action: manipulation; /* Improves touch responsiveness */
+        overflow: hidden; /* Prevent scrolling on the body */
+      }
+
+      .book-container {
+        max-width: 1200px;
+        width: 100%;
+        height: 90vh;
+        max-height: 700px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.5s ease-in-out;
+        perspective: 2500px;
+      }
+
+      .spread-container {
+        display: none; /* Hidden by default */
+        width: 100%;
+        height: 100%;
+      }
+
+      .spread-container.active {
+        display: flex; /* Shown when active */
+      }
+
+      .cover-page-container {
+        background: linear-gradient(
+          to bottom,
+          #fffbeb,
+          #fef3c7
+        ); /* Light yellow gradient */
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .page {
+        width: 50%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2.5rem;
+        position: relative;
+      }
+
+      .page.full-width {
+        width: 100%;
+      }
+
+      .page-image-container {
+        background-color: #f9fafb; /* bg-gray-50 */
+      }
+
+      .page-text-container {
+        background-color: #fff;
+      }
+
+      .page-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .cover-image {
+        max-width: 45%;
+        height: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .page-text {
+        text-align: center;
+        line-height: 1.9;
+      }
+
+      .nav-button {
+        transition: background-color 0.3s, transform 0.2s;
+      }
+
+      .nav-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .nav-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+
+      .page-number {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #9ca3af; /* gray-400 */
+      }
+
+      /* Responsive layout for smaller screens */
+      @media (max-width: 768px) {
+        .book-container {
+          height: 85vh;
+          max-height: none;
+        }
+        .spread-container.two-pages {
+          flex-direction: column !important; /* Important to override inline styles */
+        }
+        .page {
+          width: 100%;
+          height: 50%;
+          padding: 1rem;
+        }
+        .page-text {
+          font-size: 1.125rem; /* text-lg */
+        }
+        .cover-image {
+          max-width: 60%;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div
+      id="storybook"
+      class="book-container w-full bg-white rounded-2xl flex relative overflow-hidden"
+    >
+      <!-- Spreads will be dynamically generated here -->
+    </div>
+
+    <!-- Navigation Controls -->
+    <div
+      id="nav-controls"
+      class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 z-10"
+    >
+      <button
+        id="prev-btn"
+        class="nav-button bg-white text-gray-800 py-3 px-6 rounded-full shadow-lg font-bold"
+      >
+        הקודם
+      </button>
+      <button
+        id="next-btn"
+        class="nav-button bg-yellow-400 text-white py-3 px-6 rounded-full shadow-lg font-bold"
+      >
+        הבא
+      </button>
+    </div>
+
+    <script>
+      // --- Story Data ---
+      const storyData = [
+        {
+          type: "cover",
+          image: "images/1.jpg",
+          title: "חיוך העל של מילאי",
+        },
+        {
+          type: "page",
+          image: "images/3.jpg",
+          text: 'יום אחד, אמא של מילאי הכינה עוגת שוקולד טעימה. "העוגה הזאת היא הפתעה לארוחת הערב," אמרה אמא. "אסור לאכול אותה עדיין."',
+        },
+        {
+          type: "page",
+          image: "images/4.jpg",
+          text: "מילאי הריחה את ריח השוקולד המתוק. הבטן שלה קרקרה. היא ממש רצתה חתיכה מהעוגה.",
+        },
+        {
+          type: "page",
+          image: "images/5.jpg",
+          text: 'היא ניגשה לאמא שלה, חייכה את "חיוך העל" שלה ושאלה, "אפשר רק חתיכה קטנטנה?"',
+        },
+        {
+          type: "page",
+          image: "images/6.jpg",
+          text: 'אמא של מילאי לא יכלה לעמוד בפני החיוך המתוק הזה. "טוב, אבל רק חתיכה קטנה," היא אמרה ונתנה למילאי חתיכה קטנה מהעוגה.',
+        },
+        {
+          type: "page",
+          image: "images/7.jpg",
+          text: 'מאוחר יותר, מילאי רצתה לצייר. אמא שלה הכינה לה צבעים ודפים ואמרה, "תציירי בזהירות, טוב? כדי שהצבע לא ילכלך שום דבר."',
+        },
+        {
+          type: "page",
+          image: "images/8.jpg",
+          text: "מילאי ציירה פרח גדול ויפה, אבל מרוב התלהבות, המכחול שלה החליק וכתם של צבע כחול קפץ ישר על הקיר הלבן!",
+        },
+        {
+          type: "page",
+          image: "images/9.jpg",
+          text: 'בדיוק אז אמא נכנסה לחדר. היא ראתה את כתם הצבע ונעשתה רצינית. מילאי מיד חייכה את "חיוך העל" שלה, בתקווה שאמא לא תכעס.',
+        },
+        {
+          type: "page",
+          image: "images/10.jpg",
+          text: 'אבל הפעם, החיוך לא עבד. "מילאי," אמרה אמא, "החיוך שלך מקסים, אבל הוא לא יכול לנקות את הקיר. כשעושים טעות, צריך לקחת אחריות."',
+        },
+        {
+          type: "page",
+          image: "images/11.jpg",
+          text: 'מילאי הבינה. היא חיבקה את אמא. "אני מצטערת. אני אעזור לך לנקות," היא אמרה. וביחד, הן ניקו את הקיר. הפעם, מילאי לא השתמשה ב"חיוך העל", אלא בחיוך אמיתי, מלא אהבה.',
+        },
+      ];
+
+      // --- DOM Elements ---
+      const storybookContainer = document.getElementById("storybook");
+      const nextBtn = document.getElementById("next-btn");
+      const prevBtn = document.getElementById("prev-btn");
+
+      // --- State ---
+      let currentPageIndex = 0;
+
+      // --- Functions ---
+
+      /**
+       * Renders all pages and spreads into the storybook container.
+       */
+      function buildBook() {
+        let contentHtml = "";
+        storyData.forEach((pageData, index) => {
+          const isActive = index === 0 ? "active" : "";
+
+          if (pageData.type === "cover") {
+            contentHtml += `
+                        <div class="spread-container ${isActive}" data-page-index="${index}">
+                            <div class="page full-width cover-page-container">
+                                <h1 class="text-4xl md:text-6xl font-bold text-yellow-800 mb-6" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">${
+                                  pageData.title
+                                }</h1>
+                                <img src="${
+                                  pageData.image
+                                }" alt="Book Cover" class="page-image cover-image rounded-lg">
+                                <div class="page-number text-sm">${
+                                  index + 1
+                                } / ${storyData.length}</div>
+                            </div>
+                        </div>
+                    `;
+          } else {
+            // Alternate layout for two-page spreads
+            const layoutClass =
+              index % 2 !== 0 ? "flex-row-reverse" : "flex-row";
+            contentHtml += `
+                        <div class="spread-container two-pages ${isActive} ${layoutClass}" data-page-index="${index}">
+                            <div class="page page-image-container">
+                                <img src="${pageData.image}" alt="Story page ${
+              index + 1
+            }" class="page-image" onerror="this.onerror=null;this.src='https://placehold.co/600x400/f8f8f8/ccc?text=Image+Not+Found';">
+                            </div>
+                            <div class="page page-text-container">
+                                <div class="page-text text-xl md:text-2xl text-gray-700">
+                                    <p>${pageData.text}</p>
+                                </div>
+                                <div class="page-number text-sm">${
+                                  index + 1
+                                } / ${storyData.length}</div>
+                            </div>
+                        </div>
+                    `;
+          }
+        });
+        storybookContainer.innerHTML = contentHtml;
+      }
+
+      /**
+       * Displays the correct page/spread.
+       */
+      function showPage(index) {
+        document
+          .querySelectorAll(".spread-container")
+          .forEach((page) => page.classList.remove("active"));
+        const newPage = document.querySelector(
+          `.spread-container[data-page-index="${index}"]`
+        );
+        if (newPage) newPage.classList.add("active");
+        currentPageIndex = index;
+        updateNavButtons();
+      }
+
+      /**
+       * Enables or disables navigation buttons based on the current page.
+       */
+      function updateNavButtons() {
+        prevBtn.disabled = currentPageIndex === 0;
+        nextBtn.disabled = currentPageIndex === storyData.length - 1;
+      }
+
+      // --- Event Listeners ---
+      nextBtn.addEventListener("click", () => {
+        if (currentPageIndex < storyData.length - 1) {
+          showPage(currentPageIndex + 1);
+        }
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentPageIndex > 0) {
+          showPage(currentPageIndex - 1);
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" && !nextBtn.disabled) nextBtn.click();
+        else if (e.key === "ArrowLeft" && !prevBtn.disabled) prevBtn.click();
+      });
+
+      // --- Initial Load ---
+      document.addEventListener("DOMContentLoaded", () => {
+        buildBook();
+        showPage(0); // Show the cover page first
+      });
+    </script>
+  </body>
+</html>
