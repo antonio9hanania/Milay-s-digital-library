@@ -2,282 +2,336 @@
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <title>חיוך העל של מילאי</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap");
-      body {
-        font-family: "Assistant", sans-serif;
-        background-color: #f0f2f5;
-        overflow: auto; /* Prevent body scroll */
-        min-height: 100vh;
-      }
+
+      /* === ROOT LAYOUT SYSTEM === */
       html,
       body {
-        overflow: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        height: auto !important;
-        min-height: 100% !important;
-        position: relative !important;
+        font-family: "Assistant", sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        height: 100%;
+        background-color: #f0f2f5;
       }
-      .storybook-container {
-        max-width: 1100px;
-        width: 100%;
-        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
-        border-radius: 0.5rem;
-        display: flex;
-        flex-direction: column;
-        min-height: 80vh; /* Your change */
-        background-color: #fff;
-        height: auto !important; /* Your change */
-        max-height: 85vh;
-        /* iOS iframe fixes */
-        position: relative;
-        overflow: visible;
-      }
-      .storybook-body {
-        flex-grow: 1;
+
+      /* === MAIN CONTAINER === */
+      .storybook-app {
+        min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
         padding: 1rem;
-        overflow-y: auto;
       }
-      /* Cover Page Styles */
+
+      .storybook-container {
+        width: 100%;
+        max-width: 1100px;
+        background-color: #fff;
+        border-radius: 0.75rem;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+        display: grid;
+        grid-template-rows: 1fr auto;
+        grid-template-areas:
+          "content"
+          "navigation";
+        /* CRITICAL: Consistent height across all pages */
+        height: 80vh;
+        min-height: 600px;
+        max-height: 900px;
+      }
+
+      /* === CONTENT AREA === */
+      .storybook-content {
+        grid-area: content;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* === COVER PAGE === */
       .cover-page {
-        width: 50%; /* Cover takes full width of the body */
+        width: 100%;
         height: 100%;
         background-size: cover;
         background-position: center;
-        position: absolute;
+        background-repeat: no-repeat;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0.25rem;
+        border-radius: 0.5rem;
+        position: relative;
       }
+
       .cover-title {
         color: white;
         font-size: 2.8rem;
         font-weight: 700;
-        text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8);
-        padding: 1.5rem;
-        background-color: rgba(0, 0, 0, 0.3);
-        border-radius: 0.5rem;
+        text-shadow: 0px 3px 15px rgba(0, 0, 0, 0.8);
+        padding: 1.5rem 2rem;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 0.75rem;
         text-align: center;
+        backdrop-filter: blur(4px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
       }
-      /* Two-page Spread Styles */
+
+      /* === SPREAD LAYOUT === */
       .spread-container {
         display: flex;
         width: 100%;
         height: 100%;
-        gap: 1rem;
+        gap: 1.5rem;
       }
+
       .page {
-        width: 50%;
+        flex: 1;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: #fff;
-        border-radius: 0.25rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
         overflow: hidden;
+        position: relative;
       }
+
       .page.text-page {
         padding: 2.5rem;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+
       .page.image-page {
-        padding: 1rem; /* Add padding around the image */
-        background-color: #f9fafb; /* Light gray background for the image page */
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       }
+
       .page-image {
         width: 100%;
         height: 100%;
         object-fit: contain;
-        border-radius: 0.5rem;
+        border-radius: 0.25rem;
       }
-      .page p {
+
+      .page-text {
         font-size: 1.5rem;
         line-height: 1.7;
+        color: #374151;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
+
+      /* === NAVIGATION BAR === */
+      .navigation-bar {
+        grid-area: navigation;
+        background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+        border-top: 2px solid #e5e7eb;
+        padding: 1.25rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 0 0 0.75rem 0.75rem;
+      }
+
       .nav-button {
-        transition: all 0.2s ease-in-out;
-        border: 1px solid #d1d5db;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        min-width: 100px;
       }
+
       .nav-button:hover:not(:disabled) {
-        background-color: #e5e7eb;
-        transform: scale(1.05);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
       }
+
       .nav-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
       }
 
-      /* --- Responsive Styles for Mobile & Zoom --- */
+      .page-indicator {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 1rem;
+        border: 2px solid #e5e7eb;
+      }
+
+      /* === IFRAME COMPATIBILITY FOOTER === */
+      .iframe-footer {
+        height: 0; /* No footer needed on desktop */
+        background: transparent;
+        width: 100%;
+        /* Invisible spacer for iframe scrolling - mobile only */
+      }
+
+      /* === MOBILE RESPONSIVE === */
       @media (max-width: 768px) {
-        .storybook-body {
+        .storybook-app {
           padding: 0.5rem;
-        }
-        .cover-page {
-          width: 100%;
-        }
-        .cover-title {
-          font-size: 1.8rem;
-        }
-        .spread-container {
-          flex-direction: column; /* Stack pages vertically */
-          height: 100%;
-          width: 100%;
-        }
-        .page {
-          width: 100%;
-          height: 50%; /* Each page takes half the vertical space */
-        }
-        .page.image-page {
-          padding: 0.5rem;
-        }
-        .page.text-page {
-          padding: 1rem;
-        }
-        .page p {
-          font-size: 1.1rem; /* Adjust font size for mobile */
-          line-height: 1.6;
-        }
-        html,
-        body {
-          height: auto !important;
-          max-height: none !important;
-          overflow: auto !important;
-          -webkit-overflow-scrolling: touch !important;
         }
 
         .storybook-container {
-          /* CRITICAL: Different handling based on content */
-          max-height: 80vh !important;
-          overflow: auto !important;
-          position: relative !important;
-          margin: 0 !important;
+          /* Mobile: Consistent height that fits in iframe */
+          height: 85vh;
+          min-height: 500px;
+          max-height: 850px;
+          border-radius: 0.5rem;
+        }
+
+        .storybook-content {
+          padding: 1rem;
+        }
+
+        /* Mobile: Vertical layout for spreads */
+        .spread-container {
+          flex-direction: column;
+          gap: 1rem;
+          height: 100%;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .page {
+          flex: none;
+          min-height: 45%;
+          max-height: 45%;
+          width: 100%;
+        }
+
+        .cover-page {
+          width: 100%;
+          height: 100%;
+        }
+
+        .cover-title {
+          font-size: 2rem;
+          padding: 1rem 1.5rem;
+        }
+
+        .page.text-page {
+          padding: 1.5rem;
+          min-height: 45%;
+          max-height: 45%;
+        }
+
+        .page.image-page {
+          padding: 1rem;
+          min-height: 45%;
+          max-height: 45%;
+        }
+
+        .page-text {
+          font-size: 1.2rem;
+          line-height: 1.6;
+        }
+
+        .navigation-bar {
+          padding: 1rem;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+
+        .nav-button {
+          padding: 0.6rem 1.2rem;
+          font-size: 0.9rem;
+          min-width: 80px;
+        }
+
+        .page-indicator {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.9rem;
+          order: 2;
+          width: 100%;
+          text-align: center;
+        }
+      }
+
+      /* === iOS SAFARI SPECIFIC === */
+      @supports (-webkit-touch-callout: none) {
+        html,
+        body {
+          -webkit-overflow-scrolling: touch;
+          overflow-y: auto;
+        }
+
+        .storybook-container {
           -webkit-overflow-scrolling: touch;
           transform: translateZ(0);
         }
 
-        /* SPECIAL HANDLING FOR COVER PAGE */
-        .storybook-container:has(.cover-page),
-        .storybook-container .cover-page {
-          /* Cover page needs fixed height to maintain image size */
-          height: 80vh !important;
-          min-height: 80vh !important;
-        }
-
-        .cover-page {
-          /* Ensure cover image displays properly */
-          width: 100% !important; /* Changed from 50% to full width on mobile */
-          height: 70vh !important; /* Fixed height for proper image display */
-          min-height: 400px !important; /* Minimum size fallback */
-          background-size: cover !important;
-          background-position: center !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-        }
-
-        .cover-title {
-          /* Ensure title is visible over image */
-          font-size: 1.8rem !important;
-          text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8) !important;
-          background-color: rgba(0, 0, 0, 0.4) !important;
-          padding: 1rem !important;
-          border-radius: 0.5rem !important;
-          margin: 1rem !important;
-        }
-
-        /* REGULAR PAGES (not cover) */
-        .storybook-container:not(:has(.cover-page)) {
-          /* Regular pages get flexible height */
-          height: auto !important;
-          min-height: 75vh !important;
-        }
-
-        .storybook-body {
-          /* Allow flexible height within container */
-          overflow-y: auto !important;
-          max-height: none !important;
-          flex: 1;
-        }
-
-        /* Ensure navigation buttons are always accessible */
-        .nav-button {
-          margin: 5px !important;
-          padding: 8px 16px !important;
-          font-size: 0.9em !important;
-        }
-
-        /* Fix for spread containers */
-        .spread-container {
-          height: auto !important;
-          min-height: 60vh !important;
-        }
-      }
-      /* iOS Safari specific */
-      @supports (-webkit-touch-callout: none) {
-        body {
-          -webkit-overflow-scrolling: touch !important;
-          overflow-y: auto !important;
-        }
-
-        .storybook-container {
-          -webkit-overflow-scrolling: touch;
-          transform: translateZ(0); /* Hardware acceleration */
-        }
-
         @media (max-width: 768px) {
-          .cover-page {
-            height: 70vh !important;
-            min-height: 400px !important;
-            -webkit-overflow-scrolling: touch !important;
+          .spread-container {
+            -webkit-overflow-scrolling: touch;
           }
 
           .storybook-container {
-            max-height: 80vh !important;
-            overflow-y: scroll !important;
-            -webkit-overflow-scrolling: touch !important;
+            height: 85vh;
+            max-height: 85vh;
           }
         }
       }
+
+      /* === LOADING ANIMATION === */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 1.2rem;
+        color: #667eea;
+      }
     </style>
   </head>
-  <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="storybook-container">
-      <div id="storybook-body" class="storybook-body">
-        <!-- Content is rendered here by JavaScript -->
-      </div>
-      <div
-        class="flex-shrink-0 flex justify-between items-center p-4 bg-gray-100 border-t"
-      >
-        <button
-          id="prev-button"
-          class="nav-button bg-white text-gray-800 font-bold py-2 px-6 rounded-full shadow-sm"
-        >
-          הקודם
-        </button>
-        <div
-          id="page-indicator"
-          class="text-gray-700 font-semibold text-lg"
-        ></div>
-        <button
-          id="next-button"
-          class="nav-button bg-white text-gray-800 font-bold py-2 px-6 rounded-full shadow-sm"
-        >
-          הבא
-        </button>
+
+  <body>
+    <div class="storybook-app">
+      <div class="storybook-container">
+        <div id="storybook-content" class="storybook-content">
+          <div class="loading">📚 טוען ספר...</div>
+        </div>
+
+        <div class="navigation-bar">
+          <button id="prev-button" class="nav-button">הקודם</button>
+          <div id="page-indicator" class="page-indicator">כריכה</div>
+          <button id="next-button" class="nav-button">הבא</button>
+        </div>
       </div>
     </div>
 
+    <!-- Invisible footer for iframe scrolling -->
+    <div class="iframe-footer"></div>
+
     <script>
-      // --- Story Data ---
       const storyData = [
         { type: "cover", image: "images/1.jpg", title: "חיוך העל של מילאי" },
         // Spread 1
@@ -351,94 +405,85 @@
         },
         { type: "image", src: "images/11.jpg" },
       ];
-      // --- DOM Elements ---
-      const storybookBody = document.getElementById("storybook-body");
+
+      // DOM Elements
+      const contentContainer = document.getElementById("storybook-content");
       const prevButton = document.getElementById("prev-button");
       const nextButton = document.getElementById("next-button");
       const pageIndicator = document.getElementById("page-indicator");
 
-      // --- State ---
-      let currentPageIndex = 0; // 0 for cover, 1 for first spread, 3, 5, etc.
+      let currentPageIndex = 0;
 
-      // --- Functions ---
-
-      function updateButtons() {
+      // Navigation Functions
+      function updateNavigation() {
         prevButton.disabled = currentPageIndex === 0;
-        // Disable 'next' if the next spread index is out of bounds
         nextButton.disabled = currentPageIndex + 2 >= storyData.length;
-      }
 
-      function updatePageIndicator() {
         if (currentPageIndex === 0) {
           pageIndicator.textContent = "כריכה";
         } else {
-          const rightPageNum = currentPageIndex + 1;
-          pageIndicator.textContent = `עמודים ${currentPageIndex}-${rightPageNum}`;
+          const endIndex = Math.min(currentPageIndex + 1, storyData.length - 1);
+          pageIndicator.textContent = `עמודים ${currentPageIndex}-${endIndex}`;
         }
       }
 
+      // Page Rendering
       function renderPage(pageData) {
         const pageElement = document.createElement("div");
 
         if (pageData.type === "image") {
-          pageElement.classList.add("page", "image-page");
-          const imageElement = document.createElement("img");
-          imageElement.src = pageData.src;
-          imageElement.classList.add("page-image");
-          imageElement.onerror = () =>
-            (imageElement.src =
-              "https://placehold.co/500x700/e2e8f0/4a5568?text=Image+Not+Found");
-          pageElement.appendChild(imageElement);
+          pageElement.className = "page image-page";
+          pageElement.innerHTML = `
+                    <img src="${pageData.src}" 
+                         alt="תמונה" 
+                         class="page-image"
+                         onerror="this.src='https://placehold.co/600x800/e5e7eb/9ca3af?text=תמונה+חסרה'" />
+                `;
         } else if (pageData.type === "text") {
-          pageElement.classList.add("page", "text-page");
-          const textElement = document.createElement("p");
-          textElement.classList.add("text-gray-800", "leading-relaxed");
-          textElement.textContent = pageData.content;
-          pageElement.appendChild(textElement);
+          pageElement.className = "page text-page";
+          pageElement.innerHTML = `<div class="page-text">${pageData.content}</div>`;
         }
+
         return pageElement;
       }
 
       function render() {
-        storybookBody.innerHTML = ""; // Always clear previous content
+        contentContainer.innerHTML = "";
 
         if (currentPageIndex === 0) {
-          // Render Cover
+          // Cover Page
           const coverData = storyData[0];
           const coverElement = document.createElement("div");
-          coverElement.classList.add("cover-page");
+          coverElement.className = "cover-page";
           coverElement.style.backgroundImage = `url('${coverData.image}')`;
-          const titleElement = document.createElement("h1");
-          titleElement.classList.add("cover-title");
-          titleElement.textContent = coverData.title;
-          coverElement.appendChild(titleElement);
-          storybookBody.appendChild(coverElement);
+          coverElement.innerHTML = `<h1 class="cover-title">${coverData.title}</h1>`;
+          contentContainer.appendChild(coverElement);
         } else {
-          // Render a two-page spread
+          // Two-Page Spread
           const spreadContainer = document.createElement("div");
-          spreadContainer.classList.add("spread-container");
+          spreadContainer.className = "spread-container";
 
-          const rightPageData = storyData[currentPageIndex];
-          if (rightPageData) {
-            spreadContainer.appendChild(renderPage(rightPageData));
-          }
-
-          const leftPageData = storyData[currentPageIndex + 1];
+          // Left page (current index)
+          const leftPageData = storyData[currentPageIndex];
           if (leftPageData) {
             spreadContainer.appendChild(renderPage(leftPageData));
           }
 
-          storybookBody.appendChild(spreadContainer);
+          // Right page (current index + 1)
+          const rightPageData = storyData[currentPageIndex + 1];
+          if (rightPageData) {
+            spreadContainer.appendChild(renderPage(rightPageData));
+          }
+
+          contentContainer.appendChild(spreadContainer);
         }
 
-        updatePageIndicator();
-        updateButtons();
+        updateNavigation();
       }
 
-      // --- Event Listeners ---
+      // Event Listeners
       prevButton.addEventListener("click", () => {
         if (currentPageIndex > 0) {
-          // If on the first spread, go to cover. Otherwise, go back 2 pages.
           currentPageIndex = currentPageIndex === 1 ? 0 : currentPageIndex - 2;
           render();
         }
@@ -446,19 +491,21 @@
 
       nextButton.addEventListener("click", () => {
         if (currentPageIndex + 2 < storyData.length) {
-          // If on cover, go to first spread. Otherwise, advance 2 pages.
           currentPageIndex = currentPageIndex === 0 ? 1 : currentPageIndex + 2;
           render();
         }
       });
 
+      // Keyboard Navigation
       document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowRight" && !nextButton.disabled) nextButton.click();
-        else if (e.key === "ArrowLeft" && !prevButton.disabled)
+        if (e.key === "ArrowRight" && !nextButton.disabled) {
+          nextButton.click();
+        } else if (e.key === "ArrowLeft" && !prevButton.disabled) {
           prevButton.click();
+        }
       });
 
-      // --- Initial Load ---
+      // Initialize
       document.addEventListener("DOMContentLoaded", render);
     </script>
   </body>
