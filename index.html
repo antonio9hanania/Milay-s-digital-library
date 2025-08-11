@@ -90,9 +90,12 @@
         transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         transform: translateX(100%);
         z-index: 1000;
-        overflow: hidden; /* No scroll on desktop */
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-rows: auto 1fr auto; /* Header - Content - Footer */
+        grid-template-areas:
+          "header"
+          "content"
+          "footer";
       }
 
       .book-reader.visible {
@@ -932,8 +935,11 @@ book2/
                             src="${book.path}" 
                             onload="resetIframeScroll()"
                             frameborder="0"
-                            scrolling="no">
+                            scrolling="yes">
                     </iframe>
+                    <div class="book-footer">
+                        ✨ גלילה בתוך הספר ✨
+                    </div>
                 `;
         }, 300);
 
