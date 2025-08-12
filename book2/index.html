@@ -25,7 +25,7 @@
       .storybook-app {
         height: 100vh;
         display: flex;
-        align-items: flex-start;
+        align-items: start;
         justify-content: center;
         padding: 1rem;
         box-sizing: border-box;
@@ -225,7 +225,7 @@
 
         .storybook-container {
           width: 100vw;
-          height: 100vh;
+          /*height: 100vh;*/
           max-height: 100vh;
           border-radius: 0;
           box-shadow: none;
@@ -265,13 +265,6 @@
           padding-top: 3rem;
           box-sizing: border-box;
           padding-bottom: calc(1.2rem + env(safe-area-inset-bottom));
-          position: relative; /* For positioning the toggle button */
-          transition: transform 0.4s ease-in-out; /* For minimize animation */
-        }
-
-        /* NEW: Minimized state for text overlay */
-        .text-overlay.minimized {
-          transform: translateY(calc(100% - 60px)); /* Slide down */
         }
 
         .text-overlay .page-text {
@@ -281,43 +274,11 @@
           text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
           max-height: 30vh;
           overflow-y: auto;
-          transition: opacity 0.3s ease;
-        }
-
-        .text-overlay.minimized .page-text {
-          opacity: 0; /* Hide text when minimized */
-        }
-
-        /* NEW: Toggle button styles */
-        .text-toggle-button {
-          position: absolute;
-          top: 10px;
-          left: 10px; /* RTL so left is correct */
-          z-index: 5;
-          background: rgba(255, 255, 255, 0.15);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          backdrop-filter: blur(2px);
-        }
-        .text-toggle-button svg {
-          width: 20px;
-          height: 20px;
-          stroke: white;
-          stroke-width: 2.5;
-          transition: transform 0.3s ease;
-        }
-        .text-overlay.minimized .text-toggle-button svg {
-          transform: rotate(180deg);
         }
 
         .navigation-bar {
           padding: 1rem;
+          /* FIX: Use space-between to position elements */
           justify-content: space-between;
           align-items: center;
           border-radius: 0;
@@ -333,6 +294,9 @@
         .page-indicator {
           padding: 0.4rem 0.8rem;
           font-size: 0.9rem;
+          /* FIX: Remove properties that forced it to a new line */
+          /* order: 2; */
+          /* width: 100%; */
         }
       }
     </style>
@@ -501,30 +465,7 @@
             if (textData) {
               const textOverlay = document.createElement("div");
               textOverlay.className = "text-overlay";
-
-              // NEW: Create and add the toggle button
-              const toggleBtn = document.createElement("button");
-              toggleBtn.className = "text-toggle-button";
-              toggleBtn.setAttribute("aria-label", "Minimize text");
-              toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-
-              toggleBtn.addEventListener("click", (e) => {
-                e.stopPropagation(); // Prevent event bubbling
-                textOverlay.classList.toggle("minimized");
-                const isMinimized = textOverlay.classList.contains("minimized");
-                toggleBtn.setAttribute(
-                  "aria-label",
-                  isMinimized ? "Maximize text" : "Minimize text"
-                );
-              });
-
-              textOverlay.appendChild(toggleBtn);
-
-              const pageTextDiv = document.createElement("div");
-              pageTextDiv.className = "page-text";
-              pageTextDiv.innerHTML = textData.content;
-              textOverlay.appendChild(pageTextDiv);
-
+              textOverlay.innerHTML = `<div class="page-text">${textData.content}</div>`;
               spreadContainer.appendChild(textOverlay);
             }
             contentContainer.appendChild(spreadContainer);
